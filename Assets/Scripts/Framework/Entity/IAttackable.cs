@@ -6,6 +6,6 @@ namespace Game.Entity
         DamageType AttackType { get; }
         float Range { get; }
         float AttackCooldown { get; }
-        bool CanAttack(IDamageable target);
+        AttackStrategy AttackStrategy { get; }
     }
 }
