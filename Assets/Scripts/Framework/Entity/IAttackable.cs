@@ -2,12 +2,10 @@ namespace Game.Entity
 {
     public interface IAttackable
     {
-        float BaseDamage { get; }
+        float Damage { get; }
         DamageType AttackType { get; }
-        float BaseRange { get; }
+        float Range { get; }
         float AttackCooldown { get; }
-
-        void Attack(IDamageable target);
         bool CanAttack(IDamageable target);
     }
 }

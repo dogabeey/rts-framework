@@ -1,14 +1,11 @@
+using UnityEngine;
+
 namespace Game.Entity
 {
-    public class Entity
+    public abstract class Entity
     {
-        public string Id { get; }
-        public string Name { get; set; }
-
-        public Entity(string name = "")
-        {
-            Id = System.Guid.NewGuid().ToString();
-            Name = name;
-        }
+        public abstract string Name { get; set; }
+        public abstract Mesh Mesh { get; set; }
+        public Sprite Icon { get; set; }
     }
 }

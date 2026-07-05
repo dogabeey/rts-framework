@@ -1,0 +1,16 @@
+{
+    "name": "Game.Entity.Demo",
+    "rootNamespace": "Game.Entity.Demo",
+    "references": [
+        "GUID:0318c95f98fe71b4e8932b12e02ed81f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

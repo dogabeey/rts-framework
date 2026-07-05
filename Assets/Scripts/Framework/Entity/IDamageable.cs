@@ -1,11 +1,12 @@
+using Sirenix.OdinInspector;
+
 namespace Game.Entity
 {
-
     public interface IDamageable
     {
-        public float Health { get; set; }
-        public ArmorType ArmorType { get; set; }
-        public float HitBox { get; set; }
+        public float MaxHealth { get;}
+        public ArmorType ArmorType { get; }
+        public float HitBox { get; }
 
         void TakeDamage(float amount);
     }
