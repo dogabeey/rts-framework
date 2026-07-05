@@ -1,0 +1,19 @@
+{
+    "name": "Game.GridSystem",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1d8a0e50a6f74ca4393570864b11c9ff",
+        "GUID:b6e67f9506f6a1e4f86967698378b4d4",
+        "GUID:13fa7b05da790f042aeee77b715d2043",
+        "GUID:31aff26aac03cd74a980b0c862192e15"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

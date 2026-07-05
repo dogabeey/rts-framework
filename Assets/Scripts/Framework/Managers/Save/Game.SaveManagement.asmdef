@@ -1,0 +1,18 @@
+{
+    "name": "Game.SaveManagemenr",
+    "rootNamespace": "",
+    "references": [
+        "GUID:dc9833fdf6deaf246a13b146b8dbe370",
+        "GUID:c7e5ee813c213b740844ac0fcb653fbe",
+        "GUID:13fa7b05da790f042aeee77b715d2043"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
