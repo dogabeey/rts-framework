@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Game.Core;
 
 namespace Game.Entity
 {
@@ -9,6 +10,7 @@ namespace Game.Entity
         public Entity referenceEntity;
 
         public Renderer entityRenderer;
+
 
         public void SetReference(Entity referenceEntity)
         {
@@ -23,7 +25,7 @@ namespace Game.Entity
 
         private void BindVisuals()
         {
-           throw new NotImplementedException();
+            referenceEntity.SetVisualData(ref entityRenderer);
         }
     }
 }
