@@ -3,6 +3,7 @@ namespace Game.Entity
     [System.Serializable]
     public abstract class AttackStrategy
     {
+
         public abstract bool CanAttack(IDamageable target);
         public abstract void Attack(IDamageable target);
     }
@@ -26,6 +27,8 @@ namespace Game.Entity
     [System.Serializable]
     public class RangedAttackStrategy : AttackStrategy
     {
+        public float Range;
+
         public override bool CanAttack(IDamageable target)
         {
             // Implement logic to determine if the target is within ranged range

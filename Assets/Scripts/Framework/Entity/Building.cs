@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Game.Entity
 {
-    [CreateAssetMenu(fileName = "New Unit", menuName = "RTS Framework/Entity/New Unit...")]
-    public class Unit : Entity, IAttackable, IDamageable, IMoveable
+    [CreateAssetMenu(fileName = "New Building", menuName = "RTS Framework/Entity/New Building...")]
+    public class Building : Entity, IDamageable, IAttackable
     {
         public override string Name { get; set; }
         public override Mesh Mesh { get; set; }
@@ -67,16 +67,6 @@ namespace Game.Entity
 
         public void Attack(IDamageable target) => AttackStrategy.Attack(target);
         public bool CanAttack(IDamageable target) => AttackStrategy.CanAttack(target);
-
-        public void AttackMove(float deltaTime, Vector2 targetPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Move(float deltaTime, Vector2 targetPosition)
-        {
-            throw new System.NotImplementedException();
-        }
 
         public void TakeDamage(float amount)
         {

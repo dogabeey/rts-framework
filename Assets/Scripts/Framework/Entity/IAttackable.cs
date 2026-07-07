@@ -7,5 +7,8 @@ namespace Game.Entity
         float Range { get; }
         float AttackCooldown { get; }
         AttackStrategy AttackStrategy { get; }
+
+        public void Attack(IDamageable target);
+        public bool CanAttack(IDamageable target);
     }
 }

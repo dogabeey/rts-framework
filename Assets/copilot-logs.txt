@@ -1,1 +1,2 @@
 [2026-07-05] - Added a new Game.Entity assembly and a simple Entity class.
+[2026-07-07 19:29:45] - Added Building entity ScriptableObject and UnitController/BuildingController classes derived from EntityController.
