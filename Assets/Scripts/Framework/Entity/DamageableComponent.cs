@@ -1,24 +1,21 @@
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Entity
 {
     public class DamageableComponent : MonoBehaviour
     {
-        public float MaxHealth { get; }
-        public ArmorType ArmorType { get; }
-        public float HitBox { get; }
-
+        public float maxHealth = 100f;
+        public ArmorType armorType;
+        public float hitBox = 1f;
 
         [ReadOnly]
         public float currentHealth;
 
         public void Start()
         {
-            currentHealth = MaxHealth;
+            currentHealth = maxHealth;
         }
 
         public void TakeDamage(float amount)

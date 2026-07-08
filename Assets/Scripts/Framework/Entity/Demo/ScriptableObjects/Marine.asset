@@ -12,17 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c09e2190dd90bc440830fc6149e52a42, type: 3}
   m_Name: Marine
   m_EditorClassIdentifier: Game.Entity::Game.Entity.Unit
-  name: 
-  mesh: {fileID: 0}
-  icon: {fileID: 0}
-  baseMaxHealth: 0
-  armorType: 0
-  hitBox: 0
-  baseDamage: 0
-  attackType: 0
-  baseRange: 0
-  attackCooldown: 0
-  speed: 0
-  acceleration: 0
-  deceleration: 0
-  isFlyer: 0
+  meshReference: {fileID: 0}
+  materialReference: {fileID: 0}
+  spriteReference: {fileID: 0}
+  _name: 

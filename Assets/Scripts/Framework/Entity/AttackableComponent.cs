@@ -7,20 +7,20 @@ namespace Game.Entity
 {
     public class AttackableComponent : MonoBehaviour
     {
-        float Damage { get; }
-        DamageType AttackType { get; }
-        float Range { get; }
-        float AttackCooldown { get; }
-        AttackStrategy AttackStrategy { get; }
+        public float damage;
+        public DamageType damageType;
+        public float range;
+        public float attackCooldown;
+        public AttackStrategy attackStrategy;
 
         public void Attack(DamageableComponent target)
         {
-            AttackStrategy.Attack(target);
+            attackStrategy.Attack(target);
         }
 
         private bool CanAttack(DamageableComponent target)
         {
-            return AttackStrategy.CanAttack(target);
+            return attackStrategy.CanAttack(target);
         }
     }
 }
