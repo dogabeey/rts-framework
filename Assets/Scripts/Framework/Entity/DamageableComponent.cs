@@ -8,13 +8,18 @@ namespace Game.Entity
 {
     public class DamageableComponent : MonoBehaviour
     {
-        public float MaxHealth { get;}
+        public float MaxHealth { get; }
         public ArmorType ArmorType { get; }
         public float HitBox { get; }
 
 
         [ReadOnly]
         public float currentHealth;
+
+        public void Start()
+        {
+            currentHealth = MaxHealth;
+        }
 
         public void TakeDamage(float amount)
         {
@@ -27,7 +32,8 @@ namespace Game.Entity
         private void ApplyDamage(float effectiveDamage)
         {
             currentHealth -= effectiveDamage;
-            if (currentHealth <= 0)
+            currentHealth = Mathf.Max(currentHealth, 0); // Ensure health doesn't go below 0
+            if (currentHealth == 0)
             {
                 // Handle entity death logic here
                 HandleDeath();
