@@ -12,6 +12,10 @@ namespace Game.Entity
         public ArmorType ArmorType { get; }
         public float HitBox { get; }
 
+
+        [ReadOnly]
+        public float currentHealth;
+
         public void TakeDamage(float amount)
         {
             // Implement damage calculation based on armor type and hitbox
@@ -22,16 +26,11 @@ namespace Game.Entity
 
         private void ApplyDamage(float effectiveDamage)
         {
-            // Assuming you have a reference to the UnitController to access currentHealth
-            UnitController unitController = GetComponent<UnitController>();
-            if (unitController != null)
+            currentHealth -= effectiveDamage;
+            if (currentHealth <= 0)
             {
-                unitController.currentHealth -= effectiveDamage;
-                if (unitController.currentHealth <= 0)
-                {
-                    // Handle entity death logic here
-                    HandleDeath();
-                }
+                // Handle entity death logic here
+                HandleDeath();
             }
         }
 
