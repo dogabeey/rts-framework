@@ -11,7 +11,6 @@ namespace Game.Entity
 
         public Renderer entityRenderer;
 
-
         public void SetReference(Entity referenceEntity)
         {
             this.referenceEntity = referenceEntity;
