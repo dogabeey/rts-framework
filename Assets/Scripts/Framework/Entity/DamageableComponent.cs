@@ -6,9 +6,13 @@ namespace Game.Entity
 {
     public class DamageableComponent : MonoBehaviour
     {
-        public float maxHealth = 100f;
-        public ArmorType armorType;
-        public float hitBox = 1f;
+        public float MaxHealth => maxHealth;
+        public ArmorType ArmorType => armorType;
+        public float HitBox => hitBox;
+
+        [SerializeField] private float maxHealth = 100f;
+        [SerializeField] private  ArmorType armorType;
+        [SerializeField] private  float hitBox = 1f;
 
         [ReadOnly]
         public float currentHealth;
