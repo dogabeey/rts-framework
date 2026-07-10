@@ -3,13 +3,30 @@ using UnityEngine.InputSystem;
 
 namespace Game.Entity
 {
+    public enum SelectionBoxMode
+    {
+        Sprite,
+        ProjectionCube
+    }
+
     [DisallowMultipleComponent]
     public class SelectionManager : MonoBehaviour, @RTS_InputActions.IRTSActions
     {
         [SerializeField] private Camera worldCamera;
         [SerializeField] private Transform selectionPlane;
         [SerializeField] private LayerMask selectionPlaneLayerMask = ~0;
+
+        [Header("Selection Box Visual")]
+        [SerializeField] private SelectionBoxMode selectionBoxMode = SelectionBoxMode.Sprite;
+
+        [Header("Sprite Mode")]
         [SerializeField] private SpriteRenderer selectionBoxRenderer;
+
+        [Header("Projection Cube Mode")]
+        [SerializeField] private Transform selectionBoxProjector;
+        [SerializeField] private float projectionDepth = 2f;
+
+        [Header("Shared")]
         [SerializeField] private float selectionBoxPlaneOffset = 0.02f;
         [SerializeField] private float singleSelectionRadiusPixels = 40f;
         [SerializeField] private float dragSelectionThresholdPixels = 8f;
@@ -75,33 +92,39 @@ namespace Game.Entity
 
         private void ConfigureSelectionBoxRenderer()
         {
-            if (selectionBoxRenderer == null)
+            if (selectionBoxMode == SelectionBoxMode.Sprite && selectionBoxRenderer != null)
             {
-                return;
+                selectionBoxRenderer.drawMode = SpriteDrawMode.Sliced;
+                selectionBoxRenderer.size = Vector2.one;
+                selectionBoxRenderer.transform.localScale = Vector3.one;
             }
-
-            selectionBoxRenderer.drawMode = SpriteDrawMode.Sliced;
-            selectionBoxRenderer.size = Vector2.one;
-            selectionBoxRenderer.transform.localScale = Vector3.one;
         }
 
         private void SetSelectionBoxVisible(bool isVisible)
         {
-            if (selectionBoxRenderer == null)
+            switch (selectionBoxMode)
             {
-                return;
-            }
+                case SelectionBoxMode.Sprite:
+                    if (selectionBoxRenderer != null)
+                    {
+                        var go = selectionBoxRenderer.gameObject;
+                        if (go.activeSelf != isVisible) go.SetActive(isVisible);
+                    }
+                    break;
 
-            var go = selectionBoxRenderer.gameObject;
-            if (go.activeSelf != isVisible)
-            {
-                go.SetActive(isVisible);
+                case SelectionBoxMode.ProjectionCube:
+                    if (selectionBoxProjector != null)
+                    {
+                        if (selectionBoxProjector.gameObject.activeSelf != isVisible)
+                            selectionBoxProjector.gameObject.SetActive(isVisible);
+                    }
+                    break;
             }
         }
 
         private void UpdateSelectionBoxVisual(Vector2 startScreen, Vector2 endScreen)
         {
-            if (selectionBoxRenderer == null || selectionPlane == null)
+            if (selectionPlane == null)
             {
                 return;
             }
@@ -118,13 +141,27 @@ namespace Game.Entity
             var center = (wBL + wBR + wTR + wTL) * 0.25f + selectionPlane.up * selectionBoxPlaneOffset;
 
             // Width and height are real world-edge lengths averaged across opposing edges
-            var width  = (Vector3.Distance(wBL, wBR) + Vector3.Distance(wTL, wTR)) * 0.5f;
-            var height = (Vector3.Distance(wBL, wTL) + Vector3.Distance(wBR, wTR)) * 0.5f;
+            var width  = Mathf.Max((Vector3.Distance(wBL, wBR) + Vector3.Distance(wTL, wTR)) * 0.5f, 0.001f);
+            var height = Mathf.Max((Vector3.Distance(wBL, wTL) + Vector3.Distance(wBR, wTR)) * 0.5f, 0.001f);
 
-            selectionBoxRenderer.transform.position = center;
-            selectionBoxRenderer.transform.rotation = Quaternion.LookRotation(selectionPlane.up, selectionPlane.forward);
-            selectionBoxRenderer.transform.localScale = Vector3.one;
-            selectionBoxRenderer.size = new Vector2(Mathf.Max(width, 0.001f), Mathf.Max(height, 0.001f));
+            switch (selectionBoxMode)
+            {
+                case SelectionBoxMode.Sprite:
+                    if (selectionBoxRenderer == null) return;
+                    selectionBoxRenderer.transform.position = center;
+                    selectionBoxRenderer.transform.rotation = Quaternion.identity;
+                    selectionBoxRenderer.transform.localScale = Vector3.one;
+                    selectionBoxRenderer.size = new Vector2(width, height);
+                    break;
+
+                case SelectionBoxMode.ProjectionCube:
+                    if (selectionBoxProjector == null) return;
+                    selectionBoxProjector.position = center;
+                    selectionBoxProjector.rotation = Quaternion.identity;
+                    // X = width on plane, Z = height on plane, Y = projection depth
+                    selectionBoxProjector.localScale = new Vector3(width, Mathf.Max(projectionDepth, 0.001f), height);
+                    break;
+            }
         }
 
         private Camera ResolveCamera()
