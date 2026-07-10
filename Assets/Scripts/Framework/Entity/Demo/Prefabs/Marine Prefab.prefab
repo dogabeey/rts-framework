@@ -77,6 +77,8 @@ MonoBehaviour:
   turnSpeed: 360
   useFormationPriority: 1
   formationPriority: 0
+  formationSpacing: 1
+  maxUnitsPerRow: 8
 --- !u!114 &5410998800843844096
 MonoBehaviour:
   m_ObjectHideFlags: 0

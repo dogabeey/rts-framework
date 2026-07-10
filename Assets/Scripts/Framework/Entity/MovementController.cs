@@ -15,6 +15,8 @@ namespace Game.Entity
         public float Deceleration => baseDeceleration;
         public bool UseFormationPriority => useFormationPriority;
         public int FormationPriority => formationPriority;
+        public float FormationSpacing => formationSpacing;
+        public int MaxUnitsPerRow => maxUnitsPerRow;
         public bool HasMoveTarget => hasMoveTarget;
         public Vector3 CurrentMoveTarget => currentMoveTarget;
 
@@ -26,6 +28,8 @@ namespace Game.Entity
         [SerializeField, FoldoutGroup("Movement")] private float turnSpeed = 360f;
         [SerializeField, FoldoutGroup("Formation")] private bool useFormationPriority = true;
         [SerializeField, FoldoutGroup("Formation")] private int formationPriority;
+        [SerializeField, FoldoutGroup("Formation")] private float formationSpacing = 1.75f;
+        [SerializeField, FoldoutGroup("Formation")] private int maxUnitsPerRow = 8;
         [SerializeField, FoldoutGroup("Modifier")] private List<Modifier> movementModifiers = new List<Modifier>();
 
         private NavMeshAgent navMeshAgent;

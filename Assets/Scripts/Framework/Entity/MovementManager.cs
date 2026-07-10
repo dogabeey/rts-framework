@@ -6,9 +6,6 @@ namespace Game.Entity
     [DisallowMultipleComponent]
     public class MovementManager : MonoBehaviour
     {
-        [SerializeField] private float formationSpacing = 1.75f;
-        [SerializeField] private int maxUnitsPerRow = 8;
-
         public void CommandMove(IReadOnlyList<UnitController> units, Vector3 targetPosition)
         {
             if (units == null || units.Count == 0)
@@ -32,6 +29,9 @@ namespace Game.Entity
                 return;
             }
 
+            var formationSpacing = ResolveFormationSpacing(movers);
+            var maxUnitsPerRow = ResolveMaxUnitsPerRow(movers);
+
             var center = CalculateCenter(movers);
             var forward = targetPosition - center;
             forward.y = 0f;
@@ -48,15 +48,15 @@ namespace Game.Entity
             var rowSize = Mathf.Clamp(maxUnitsPerRow, 1, movers.Count);
             var slots = BuildSlots(movers.Count, rowSize, Mathf.Max(0.1f, formationSpacing), right, forward);
 
-            // Higher-priority units are assigned to front slots, lower-priority units to back slots.
-            movers.Sort(CompareByFormationPriority);
+            // Higher-priority units are assigned to front slots; same-type units are kept adjacent.
+            movers.Sort(CompareByPriorityThenType);
             for (var i = 0; i < movers.Count; i++)
             {
                 movers[i].movementController.SetMoveTarget(targetPosition + slots[i]);
             }
         }
 
-        private static int CompareByFormationPriority(UnitController left, UnitController right)
+        private static int CompareByPriorityThenType(UnitController left, UnitController right)
         {
             var leftPriority = left.movementController != null && left.movementController.UseFormationPriority
                 ? left.movementController.FormationPriority
@@ -65,7 +65,55 @@ namespace Game.Entity
                 ? right.movementController.FormationPriority
                 : 0;
 
-            return rightPriority.CompareTo(leftPriority);
+            var priorityComparison = rightPriority.CompareTo(leftPriority);
+            if (priorityComparison != 0)
+            {
+                return priorityComparison;
+            }
+
+            var leftType = left.Unit != null ? left.Unit.GetType().Name : string.Empty;
+            var rightType = right.Unit != null ? right.Unit.GetType().Name : string.Empty;
+            var typeComparison = string.CompareOrdinal(leftType, rightType);
+            if (typeComparison != 0)
+            {
+                return typeComparison;
+            }
+
+            return left.GetInstanceID().CompareTo(right.GetInstanceID());
+        }
+
+        private static float ResolveFormationSpacing(List<UnitController> units)
+        {
+            var spacing = 0.1f;
+            for (var i = 0; i < units.Count; i++)
+            {
+                var movementController = units[i].movementController;
+                if (movementController == null)
+                {
+                    continue;
+                }
+
+                spacing = Mathf.Max(spacing, movementController.FormationSpacing);
+            }
+
+            return spacing;
+        }
+
+        private static int ResolveMaxUnitsPerRow(List<UnitController> units)
+        {
+            var row = 1;
+            for (var i = 0; i < units.Count; i++)
+            {
+                var movementController = units[i].movementController;
+                if (movementController == null)
+                {
+                    continue;
+                }
+
+                row = Mathf.Max(row, movementController.MaxUnitsPerRow);
+            }
+
+            return row;
         }
 
         private static Vector3 CalculateCenter(List<UnitController> units)
