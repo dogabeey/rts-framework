@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
+using Game.EventManagement;
 
 namespace Game.Entity
 {
@@ -34,8 +35,18 @@ namespace Game.Entity
 
         private void ApplyDamage(float effectiveDamage)
         {
+            float previousHealth = currentHealth;
             currentHealth -= effectiveDamage;
             currentHealth = Mathf.Max(currentHealth, 0); // Ensure health doesn't go below 0
+
+            EventParam damageParam = new EventParam();
+            damageParam.Set(EventParam.Keys.GameObject, gameObject);
+            damageParam.Set("entityController", referenceEntity);
+            damageParam.Set("damage", effectiveDamage);
+            damageParam.Set("previousHealth", previousHealth);
+            damageParam.Set("currentHealth", currentHealth);
+            EventManager.TriggerEvent(GameEvent.ENTITY_DAMAGED, damageParam);
+
             if (currentHealth == 0)
             {
                 // Handle entity death logic here

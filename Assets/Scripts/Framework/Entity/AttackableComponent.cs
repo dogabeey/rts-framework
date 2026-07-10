@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Sirenix.OdinInspector;
+using Game.EventManagement;
 
 namespace Game.Entity
 {
@@ -25,6 +26,15 @@ namespace Game.Entity
         public void Attack(DamageableComponent target)
         {
             attackStrategy.Attack(target);
+
+            EventParam attackParam = new EventParam();
+            attackParam.Set(EventParam.Keys.GameObject, gameObject);
+            attackParam.Set("entityController", referenceEntity);
+            attackParam.Set("target", target);
+            attackParam.Set("targetGameObject", target != null ? target.gameObject : null);
+            attackParam.Set("damage", damage);
+            attackParam.Set("damageType", damageType);
+            EventManager.TriggerEvent(GameEvent.ENTITY_ATTACKED, attackParam);
         }
 
         private bool CanAttack(DamageableComponent target)

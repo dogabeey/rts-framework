@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Game.ModifierSystem;
+using Game.EventManagement;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;
@@ -88,6 +89,12 @@ namespace Game.Entity
             hasMoveTarget = true;
             navMeshAgent.isStopped = false;
             navMeshAgent.SetDestination(worldTarget);
+
+            EventParam moveParam = new EventParam();
+            moveParam.Set(EventParam.Keys.GameObject, gameObject);
+            moveParam.Set("entityController", referenceEntity);
+            moveParam.Set("targetPosition", worldTarget);
+            EventManager.TriggerEvent(GameEvent.ENTITY_MOVED, moveParam);
         }
 
         public void Stop()
@@ -137,6 +144,7 @@ namespace Game.Entity
 
         private void ForceIdle()
         {
+            bool wasMoving = hasMoveTarget;
             hasMoveTarget = false;
 
             if (navMeshAgent == null)
@@ -146,6 +154,15 @@ namespace Game.Entity
 
             navMeshAgent.isStopped = true;
             navMeshAgent.ResetPath();
+
+            if (wasMoving)
+            {
+                EventParam stopParam = new EventParam();
+                stopParam.Set(EventParam.Keys.GameObject, gameObject);
+                stopParam.Set("entityController", referenceEntity);
+                stopParam.Set("stoppedAt", transform.position);
+                EventManager.TriggerEvent(GameEvent.ENTITY_STOPPED, stopParam);
+            }
         }
 
         [System.Flags]

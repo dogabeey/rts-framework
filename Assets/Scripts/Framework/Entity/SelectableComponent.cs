@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using QuickOutline;
+using Game.EventManagement;
 
 namespace Game.Entity
 {
@@ -71,6 +72,16 @@ namespace Game.Entity
 
             ApplySelectionVisuals();
             SelectionChanged?.Invoke(this, IsSelected);
+
+            EventParam selectionParam = new EventParam();
+            selectionParam.Set(EventParam.Keys.GameObject, gameObject);
+            selectionParam.Set("selectable", this);
+            if (TryGetComponent<EntityController>(out var entityController))
+            {
+                selectionParam.Set("entityController", entityController);
+            }
+
+            EventManager.TriggerEvent(IsSelected ? GameEvent.ENTITY_SELECTED : GameEvent.ENTITY_DESELECTED, selectionParam);
         }
 
         public static void DeselectAll()

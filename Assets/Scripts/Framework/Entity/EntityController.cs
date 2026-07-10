@@ -1,6 +1,7 @@
 using UnityEngine;
 using Game.Core;
 using System;
+using Game.EventManagement;
 
 namespace Game.Entity
 {
@@ -24,6 +25,11 @@ namespace Game.Entity
         {
             InitReferences();
             SetMissionState(initialMissionState, true);
+
+            EventParam spawnParam = new EventParam();
+            spawnParam.Set(EventParam.Keys.GameObject, gameObject);
+            spawnParam.Set("entityController", this);
+            EventManager.TriggerEvent(GameEvent.ENTITY_SPAWNED, spawnParam);
         }
         protected virtual void Update() 
         {
@@ -33,7 +39,14 @@ namespace Game.Entity
         protected virtual void UpdateEntityState()
         {
             entityState?.OnStateUpdate(this);
-            SetMissionState(EntityMissionType.Flee);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            EventParam destroyParam = new EventParam();
+            destroyParam.Set(EventParam.Keys.GameObject, gameObject);
+            destroyParam.Set("entityController", this);
+            EventManager.TriggerEvent(GameEvent.ENTITY_DESTROYED, destroyParam);
         }
 
         protected virtual void InitReferences()
@@ -93,6 +106,14 @@ namespace Game.Entity
 
         protected virtual void OnEntityStateChange(EntityMissionState previousState, EntityMissionState nextState)
         {
+            EventParam missionParam = new EventParam();
+            missionParam.Set(EventParam.Keys.GameObject, gameObject);
+            missionParam.Set("entityController", this);
+            missionParam.Set("previousMissionState", previousState != null ? previousState.StateName : string.Empty);
+            missionParam.Set("nextMissionState", nextState != null ? nextState.StateName : string.Empty);
+            missionParam.Set("previousMissionType", previousState != null ? previousState.MissionType : EntityMissionType.Idle);
+            missionParam.Set("nextMissionType", nextState != null ? nextState.MissionType : EntityMissionType.Idle);
+            EventManager.TriggerEvent(GameEvent.ENTITY_MISSION_STATE_CHANGED, missionParam);
         }
     }
 }

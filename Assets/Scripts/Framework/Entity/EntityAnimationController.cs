@@ -80,6 +80,12 @@ namespace Game.Entity
                 {
                     currentAnimationState = value;
                     UpdateAnimatorState();
+
+                    EventParam animationParam = new EventParam();
+                    animationParam.Set(EventParam.Keys.GameObject, gameObject);
+                    animationParam.Set("entityController", entityController);
+                    animationParam.Set("animationState", currentAnimationState != null ? currentAnimationState.ParameterName : string.Empty);
+                    EventManager.TriggerEvent(GameEvent.ENTITY_ANIMATION_STATE_CHANGED, animationParam);
                 } 
             }
         }
