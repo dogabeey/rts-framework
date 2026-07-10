@@ -144,12 +144,41 @@ namespace Game.Entity
             var width  = Mathf.Max((Vector3.Distance(wBL, wBR) + Vector3.Distance(wTL, wTR)) * 0.5f, 0.001f);
             var height = Mathf.Max((Vector3.Distance(wBL, wTL) + Vector3.Distance(wBR, wTR)) * 0.5f, 0.001f);
 
+            // Build stable local axes from projected drag edges so visuals track camera rotation.
+            var planeNormal = selectionPlane.up.normalized;
+            var avgHorizontal = ((wBR - wBL) + (wTR - wTL)) * 0.5f;
+            var avgVertical = ((wTL - wBL) + (wTR - wBR)) * 0.5f;
+
+            var upAxis = Vector3.ProjectOnPlane(avgVertical, planeNormal).normalized;
+            if (upAxis.sqrMagnitude < 0.0001f)
+            {
+                var cam = ResolveCamera();
+                var fallback = cam != null ? cam.transform.up : selectionPlane.forward;
+                upAxis = Vector3.ProjectOnPlane(fallback, planeNormal).normalized;
+                if (upAxis.sqrMagnitude < 0.0001f)
+                {
+                    upAxis = Vector3.ProjectOnPlane(selectionPlane.forward, planeNormal).normalized;
+                }
+            }
+
+            var rightAxis = Vector3.Cross(planeNormal, upAxis).normalized;
+            if (Vector3.Dot(rightAxis, avgHorizontal) < 0f)
+            {
+                rightAxis = -rightAxis;
+                upAxis = -upAxis;
+            }
+
+            // Sprite local axes: X=rightAxis, Y=upAxis, Z=planeNormal
+            var spriteRotation = Quaternion.LookRotation(Vector3.Cross(rightAxis, upAxis), upAxis);
+            // Projection cube local axes: X=rightAxis, Y=planeNormal, Z=upAxis
+            var projectorRotation = Quaternion.LookRotation(upAxis, planeNormal);
+
             switch (selectionBoxMode)
             {
                 case SelectionBoxMode.Sprite:
                     if (selectionBoxRenderer == null) return;
                     selectionBoxRenderer.transform.position = center;
-                    selectionBoxRenderer.transform.rotation = Quaternion.identity;
+                    selectionBoxRenderer.transform.rotation = spriteRotation;
                     selectionBoxRenderer.transform.localScale = Vector3.one;
                     selectionBoxRenderer.size = new Vector2(width, height);
                     break;
@@ -157,7 +186,7 @@ namespace Game.Entity
                 case SelectionBoxMode.ProjectionCube:
                     if (selectionBoxProjector == null) return;
                     selectionBoxProjector.position = center;
-                    selectionBoxProjector.rotation = Quaternion.identity;
+                    selectionBoxProjector.rotation = projectorRotation;
                     // X = width on plane, Z = height on plane, Y = projection depth
                     selectionBoxProjector.localScale = new Vector3(width, Mathf.Max(projectionDepth, 0.001f), height);
                     break;
