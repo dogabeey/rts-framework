@@ -18,14 +18,6 @@ namespace Game.Entity
 
         protected override void UpdateEntityState()
         {
-            if(movementController.HasMoveTarget)
-            {
-                EntityState = EntityState.moving;
-            }
-            else
-            {
-                EntityState = EntityState.idle;
-            }
         }
     }
 }

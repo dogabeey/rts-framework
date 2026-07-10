@@ -1,22 +1,13 @@
-using System;
 using UnityEngine;
 using Game.Core;
 
 namespace Game.Entity
 {
-    public enum EntityState
-    {
-        idle,
-        moving,
-        flee,
-        dead,
-
-    }
 
     [RequireComponent( typeof(AttackableComponent), typeof(DamageableComponent))]
     public abstract class EntityController : MonoBehaviour
     {
-        public EntityState EntityState
+        public EntityMissionState EntityState
         {
             get
             {
@@ -30,7 +21,7 @@ namespace Game.Entity
             }
         }
 
-        protected virtual void OnEntityStateChange(EntityState value)
+        protected virtual void OnEntityStateChange(EntityMissionState value)
         {
             
         }
@@ -38,7 +29,7 @@ namespace Game.Entity
         protected abstract void UpdateEntityState();
 
         public Entity referenceEntity;
-        public EntityState entityState;
+        public EntityMissionState entityState;
         public Renderer entityRenderer;
         public AttackableComponent attackableComponent;
         public DamageableComponent damageableComponent;

@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "RTS Framework.slnx"
+    "dotnet.defaultSolution": "rts-framework.slnx"
 }

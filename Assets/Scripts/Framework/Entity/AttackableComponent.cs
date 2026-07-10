@@ -20,7 +20,7 @@ namespace Game.Entity
         [SerializeField] private DamageType damageType;
         [SerializeField] private float range;
         [SerializeField] private float attackCooldown;
-        [SerializeField] private AttackStrategy attackStrategy;
+        [SerializeField, SerializeReference] private AttackStrategy attackStrategy;
 
         public void Attack(DamageableComponent target)
         {
