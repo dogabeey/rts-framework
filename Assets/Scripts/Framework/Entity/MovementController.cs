@@ -20,6 +20,8 @@ namespace Game.Entity
         public bool HasMoveTarget => hasMoveTarget;
         public Vector3 CurrentMoveTarget => currentMoveTarget;
 
+        [ReadOnly] public  EntityController referenceEntity;
+
         [SerializeField, FoldoutGroup("Movement")] private MovementTags movementTagList;
         [SerializeField, FoldoutGroup("Movement")] private float baseSpeed;
         [SerializeField, FoldoutGroup("Movement")] private float baseAcceleration;

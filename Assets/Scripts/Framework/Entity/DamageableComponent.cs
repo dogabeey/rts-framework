@@ -10,6 +10,8 @@ namespace Game.Entity
         public ArmorType ArmorType => armorType;
         public float HitBox => hitBox;
 
+        [ReadOnly] public  EntityController referenceEntity;
+
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private  ArmorType armorType;
         [SerializeField] private  float hitBox = 1f;

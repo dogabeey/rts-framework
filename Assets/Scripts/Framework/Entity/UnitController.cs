@@ -13,6 +13,19 @@ namespace Game.Entity
         {
             base.InitReferences();
             movementController = GetComponent<MovementController>();
+            if (movementController != null) movementController.referenceEntity = this;
+        }
+
+        protected override void UpdateEntityState()
+        {
+            if(movementController.HasMoveTarget)
+            {
+                EntityState = EntityState.moving;
+            }
+            else
+            {
+                EntityState = EntityState.idle;
+            }
         }
     }
 }

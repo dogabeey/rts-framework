@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Sirenix.OdinInspector;
 
 namespace Game.Entity
 {
@@ -13,6 +14,8 @@ namespace Game.Entity
         public float AttackCooldown => attackCooldown;
         public AttackStrategy AttackStrategy => attackStrategy;
 
+        [ReadOnly] public  EntityController referenceEntity;
+        
         [SerializeField] private float damage;
         [SerializeField] private DamageType damageType;
         [SerializeField] private float range;
