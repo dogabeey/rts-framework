@@ -123,6 +123,14 @@ namespace Game.Entity
                 return false;
             }
 
+            if (mouseScreenPosition.x < 0f
+                || mouseScreenPosition.x > Screen.width
+                || mouseScreenPosition.y < 0f
+                || mouseScreenPosition.y > Screen.height)
+            {
+                return false;
+            }
+
             var left = Screen.width * edgeBoundaryNormalized;
             var right = Screen.width * (1f - edgeBoundaryNormalized);
             var bottom = Screen.height * edgeBoundaryNormalized;
