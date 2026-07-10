@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using QuickOutline;
 
 namespace Game.Entity
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(Collider)), RequireComponent(typeof(Outline))]
     public class SelectableComponent : MonoBehaviour
     {
         public static IReadOnlyCollection<SelectableComponent> All => allSelectables;
-        public static IReadOnlyCollection<SelectableComponent> Selected => selected;
 
+        [SerializeField] private Outline outline;
         [SerializeField] private Renderer[] selectionRenderers;
         [SerializeField] private Color selectedColor = Color.green;
 
@@ -107,15 +108,10 @@ namespace Game.Entity
 
         private void ApplySelectionVisuals()
         {
-            for (var i = 0; i < selectionRenderers.Length; i++)
+            outline = outline ?? GetComponent<Outline>();
+            if (outline != null)
             {
-                var rendererRef = selectionRenderers[i];
-                if (rendererRef == null || rendererRef.sharedMaterial == null)
-                {
-                    continue;
-                }
-
-                rendererRef.material.color = IsSelected ? selectedColor : originalColors[i];
+                outline.enabled = IsSelected;
             }
         }
     }

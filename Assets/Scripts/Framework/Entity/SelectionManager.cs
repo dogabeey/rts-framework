@@ -7,22 +7,61 @@ namespace Game.Entity
     public class SelectionManager : MonoBehaviour, @RTS_InputActions.IRTSActions
     {
         [SerializeField] private Camera worldCamera;
-        [SerializeField] private LayerMask selectableLayers = ~0;
+        [SerializeField] private Transform selectionPlane;
+        [SerializeField] private LayerMask selectionPlaneLayerMask = ~0;
+        [SerializeField] private SpriteRenderer selectionBoxRenderer;
+        [SerializeField] private float selectionBoxPlaneOffset = 0.02f;
+        [SerializeField] private float singleSelectionRadiusPixels = 40f;
         [SerializeField] private float dragSelectionThresholdPixels = 8f;
 
         private @RTS_InputActions inputActions;
         private Vector2 pressStartScreenPosition;
+        private bool isPointerDown;
         private bool isDraggingSelection;
+
+        private void Awake()
+        {
+            ConfigureSelectionBoxRenderer();
+            SetSelectionBoxVisible(false);
+        }
 
         private void OnEnable()
         {
+            ConfigureSelectionBoxRenderer();
+            SetSelectionBoxVisible(false);
+
             inputActions = new @RTS_InputActions();
             inputActions.RTS.AddCallbacks(this);
             inputActions.RTS.Enable();
         }
 
+        private void Update()
+        {
+            if (!isPointerDown)
+            {
+                return;
+            }
+
+            var currentMousePosition = GetCurrentMouseScreenPosition();
+            var dragDistance = Vector2.Distance(pressStartScreenPosition, currentMousePosition);
+            if (!isDraggingSelection && dragDistance >= dragSelectionThresholdPixels)
+            {
+                isDraggingSelection = true;
+                SetSelectionBoxVisible(true);
+            }
+
+            if (isDraggingSelection)
+            {
+                UpdateSelectionBoxVisual(pressStartScreenPosition, currentMousePosition);
+            }
+        }
+
         private void OnDisable()
         {
+            SetSelectionBoxVisible(false);
+            isPointerDown = false;
+            isDraggingSelection = false;
+
             if (inputActions == null)
             {
                 return;
@@ -32,6 +71,60 @@ namespace Game.Entity
             inputActions.RTS.Disable();
             inputActions.Dispose();
             inputActions = null;
+        }
+
+        private void ConfigureSelectionBoxRenderer()
+        {
+            if (selectionBoxRenderer == null)
+            {
+                return;
+            }
+
+            selectionBoxRenderer.drawMode = SpriteDrawMode.Sliced;
+            selectionBoxRenderer.size = Vector2.one;
+            selectionBoxRenderer.transform.localScale = Vector3.one;
+        }
+
+        private void SetSelectionBoxVisible(bool isVisible)
+        {
+            if (selectionBoxRenderer == null)
+            {
+                return;
+            }
+
+            var go = selectionBoxRenderer.gameObject;
+            if (go.activeSelf != isVisible)
+            {
+                go.SetActive(isVisible);
+            }
+        }
+
+        private void UpdateSelectionBoxVisual(Vector2 startScreen, Vector2 endScreen)
+        {
+            if (selectionBoxRenderer == null || selectionPlane == null)
+            {
+                return;
+            }
+
+            var minScreen = Vector2.Min(startScreen, endScreen);
+            var maxScreen = Vector2.Max(startScreen, endScreen);
+
+            // Project all 4 screen-rect corners to the world plane
+            if (!TryGetPlanePoint(new Vector2(minScreen.x, minScreen.y), out var wBL)) return;
+            if (!TryGetPlanePoint(new Vector2(maxScreen.x, minScreen.y), out var wBR)) return;
+            if (!TryGetPlanePoint(new Vector2(maxScreen.x, maxScreen.y), out var wTR)) return;
+            if (!TryGetPlanePoint(new Vector2(minScreen.x, maxScreen.y), out var wTL)) return;
+
+            var center = (wBL + wBR + wTR + wTL) * 0.25f + selectionPlane.up * selectionBoxPlaneOffset;
+
+            // Width and height are real world-edge lengths averaged across opposing edges
+            var width  = (Vector3.Distance(wBL, wBR) + Vector3.Distance(wTL, wTR)) * 0.5f;
+            var height = (Vector3.Distance(wBL, wTL) + Vector3.Distance(wBR, wTR)) * 0.5f;
+
+            selectionBoxRenderer.transform.position = center;
+            selectionBoxRenderer.transform.rotation = Quaternion.LookRotation(selectionPlane.up, selectionPlane.forward);
+            selectionBoxRenderer.transform.localScale = Vector3.one;
+            selectionBoxRenderer.size = new Vector2(Mathf.Max(width, 0.001f), Mathf.Max(height, 0.001f));
         }
 
         private Camera ResolveCamera()
@@ -49,12 +142,44 @@ namespace Game.Entity
             return null;
         }
 
+        private bool TryGetPlanePoint(Vector2 screenPosition, out Vector3 pointOnPlane)
+        {
+            pointOnPlane = default;
+
+            var cameraRef = ResolveCamera();
+            if (cameraRef == null)
+            {
+                return false;
+            }
+
+            if ((selectionPlaneLayerMask.value != 0) && Physics.Raycast(cameraRef.ScreenPointToRay(screenPosition), out var hit, Mathf.Infinity, selectionPlaneLayerMask))
+            {
+                pointOnPlane = hit.point;
+                return true;
+            }
+
+            if (selectionPlane == null)
+            {
+                return false;
+            }
+
+            var plane = new Plane(selectionPlane.up, selectionPlane.position);
+            var ray = cameraRef.ScreenPointToRay(screenPosition);
+            if (!plane.Raycast(ray, out var distance))
+            {
+                return false;
+            }
+
+            pointOnPlane = ray.GetPoint(distance);
+            return true;
+        }
+
         private bool IsAdditiveSelectionActive()
         {
             return inputActions != null && inputActions.RTS.AddToSelection.IsPressed();
         }
 
-        private Vector2 GetCurrentMouseScreenPosition(InputAction.CallbackContext context)
+        private Vector2 GetCurrentMouseScreenPosition()
         {
             if (inputActions != null)
             {
@@ -66,59 +191,24 @@ namespace Game.Entity
                 return Mouse.current.position.ReadValue();
             }
 
-            return context.ReadValue<Vector2>();
+            return Vector2.zero;
         }
 
-        private void PerformSingleSelection(Vector2 screenPosition, bool additive)
+        // Selection operates entirely in screen space.
+        // Units are projected with WorldToScreenPoint and tested against the drag rectangle.
+        // This is accurate regardless of camera type, plane orientation, or layer masks.
+
+        private void PerformSingleSelection(Vector2 clickScreenPosition, bool additive)
         {
-            var cameraRef = ResolveCamera();
-            if (cameraRef == null)
+            var cam = ResolveCamera();
+            if (cam == null)
             {
                 return;
             }
 
-            var ray = cameraRef.ScreenPointToRay(screenPosition);
-            if (!Physics.Raycast(ray, out var hit, Mathf.Infinity, selectableLayers))
-            {
-                if (!additive)
-                {
-                    SelectableComponent.DeselectAll();
-                }
-                return;
-            }
+            SelectableComponent best = null;
+            var bestDist = float.MaxValue;
 
-            var clickedSelectable = hit.collider.GetComponentInParent<SelectableComponent>();
-            if (clickedSelectable == null)
-            {
-                if (!additive)
-                {
-                    SelectableComponent.DeselectAll();
-                }
-                return;
-            }
-
-            if (!additive)
-            {
-                SelectableComponent.DeselectAll();
-            }
-
-            clickedSelectable.SetSelected(true);
-        }
-
-        private void PerformMassSelection(Vector2 startScreenPosition, Vector2 endScreenPosition, bool additive)
-        {
-            var cameraRef = ResolveCamera();
-            if (cameraRef == null)
-            {
-                return;
-            }
-
-            if (!additive)
-            {
-                SelectableComponent.DeselectAll();
-            }
-
-            var selectionRect = CreateScreenRect(startScreenPosition, endScreenPosition);
             foreach (var selectable in SelectableComponent.All)
             {
                 if (selectable == null)
@@ -126,24 +216,75 @@ namespace Game.Entity
                     continue;
                 }
 
-                var viewportPoint = cameraRef.WorldToScreenPoint(selectable.transform.position);
-                if (viewportPoint.z < 0f)
+                var sp = cam.WorldToScreenPoint(selectable.transform.position);
+                if (sp.z < 0f)
                 {
                     continue;
                 }
 
-                if (selectionRect.Contains(new Vector2(viewportPoint.x, viewportPoint.y)))
+                var dist = Vector2.Distance(new Vector2(sp.x, sp.y), clickScreenPosition);
+                if (dist > singleSelectionRadiusPixels || dist >= bestDist)
+                {
+                    continue;
+                }
+
+                bestDist = dist;
+                best = selectable;
+            }
+
+            if (best == null)
+            {
+                if (!additive)
+                {
+                    SelectableComponent.DeselectAll();
+                }
+                return;
+            }
+
+            if (!additive)
+            {
+                SelectableComponent.DeselectAll();
+            }
+
+            best.SetSelected(true);
+        }
+
+        private void PerformMassSelection(Vector2 startScreen, Vector2 endScreen, bool additive)
+        {
+            if (!additive)
+            {
+                SelectableComponent.DeselectAll();
+            }
+
+            var cam = ResolveCamera();
+            if (cam == null)
+            {
+                return;
+            }
+
+            var minX = Mathf.Min(startScreen.x, endScreen.x);
+            var maxX = Mathf.Max(startScreen.x, endScreen.x);
+            var minY = Mathf.Min(startScreen.y, endScreen.y);
+            var maxY = Mathf.Max(startScreen.y, endScreen.y);
+
+            foreach (var selectable in SelectableComponent.All)
+            {
+                if (selectable == null)
+                {
+                    continue;
+                }
+
+                var sp = cam.WorldToScreenPoint(selectable.transform.position);
+                if (sp.z < 0f)
+                {
+                    continue;
+                }
+
+                if (sp.x >= minX && sp.x <= maxX && sp.y >= minY && sp.y <= maxY)
                 {
                     selectable.SetSelected(true);
                 }
             }
-        }
-
-        private static Rect CreateScreenRect(Vector2 p1, Vector2 p2)
-        {
-            var min = Vector2.Min(p1, p2);
-            var max = Vector2.Max(p1, p2);
-            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         public void OnPanCamera(InputAction.CallbackContext context)
@@ -166,8 +307,10 @@ namespace Game.Entity
         {
             if (context.started)
             {
-                pressStartScreenPosition = GetCurrentMouseScreenPosition(context);
+                pressStartScreenPosition = GetCurrentMouseScreenPosition();
+                isPointerDown = true;
                 isDraggingSelection = false;
+                SetSelectionBoxVisible(false);
                 return;
             }
 
@@ -176,13 +319,26 @@ namespace Game.Entity
                 return;
             }
 
-            if (isDraggingSelection)
+            if (!isPointerDown)
             {
                 return;
             }
 
+            isPointerDown = false;
+            var endMousePosition = GetCurrentMouseScreenPosition();
             var additive = IsAdditiveSelectionActive();
-            PerformSingleSelection(GetCurrentMouseScreenPosition(context), additive);
+
+            if (isDraggingSelection)
+            {
+                PerformMassSelection(pressStartScreenPosition, endMousePosition, additive);
+            }
+            else
+            {
+                PerformSingleSelection(endMousePosition, additive);
+            }
+
+            SetSelectionBoxVisible(false);
+            isDraggingSelection = false;
         }
 
         public void OnAddToSelection(InputAction.CallbackContext context)
@@ -275,37 +431,8 @@ namespace Game.Entity
 
         public void OnSelectArea(InputAction.CallbackContext context)
         {
-            var currentMousePosition = GetCurrentMouseScreenPosition(context);
-
-            if (context.started)
-            {
-                pressStartScreenPosition = currentMousePosition;
-                isDraggingSelection = false;
-                return;
-            }
-
-            if (context.performed)
-            {
-                var dragDistance = Vector2.Distance(pressStartScreenPosition, currentMousePosition);
-                isDraggingSelection = dragDistance >= dragSelectionThresholdPixels;
-                return;
-            }
-
-            if (!context.canceled)
-            {
-                return;
-            }
-
-            var endMousePosition = currentMousePosition;
-            var additive = IsAdditiveSelectionActive();
-            var dragDistanceOnRelease = Vector2.Distance(pressStartScreenPosition, endMousePosition);
-            var shouldUseMassSelection = isDraggingSelection || dragDistanceOnRelease >= dragSelectionThresholdPixels;
-            if (shouldUseMassSelection)
-            {
-                PerformMassSelection(pressStartScreenPosition, endMousePosition, additive);
-            }
-
-            isDraggingSelection = false;
+            // Drag lifecycle is driven by Select press/release + Update mouse position polling
+            // to avoid Hold interaction timing and canvas mode inconsistencies.
         }
     }
 }

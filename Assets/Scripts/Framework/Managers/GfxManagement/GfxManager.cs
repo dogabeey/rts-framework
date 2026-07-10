@@ -1,5 +1,4 @@
 using Game.Singleton;
-using Game.Singleton;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.IO;
