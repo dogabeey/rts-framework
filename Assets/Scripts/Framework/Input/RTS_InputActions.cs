@@ -132,7 +132,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Select"",
                     ""type"": ""Button"",
                     ""id"": ""f6503f76-7fbb-45a8-a56a-12fc75a58bb6"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -213,7 +213,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""SelectAllIdleUnits"",
                     ""type"": ""Button"",
                     ""id"": ""1cd67eb4-db14-4aa6-a3a8-e280bc87f1c5"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -334,6 +334,15 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectArea"",
+                    ""type"": ""Button"",
+                    ""id"": ""41fbfb52-94dd-476e-a61e-8ce4fed6e909"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -919,6 +928,28 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""QuickLoad"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2a3d3528-e3c2-49ee-8ea7-e7c4d74f829c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SelectArea"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a5b6b8e8-216d-4b17-a73b-67e060c0858f"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""SelectArea"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -1196,6 +1227,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
         m_RTS_PauseGame = m_RTS.FindAction("PauseGame", throwIfNotFound: true);
         m_RTS_QuickSave = m_RTS.FindAction("QuickSave", throwIfNotFound: true);
         m_RTS_QuickLoad = m_RTS.FindAction("QuickLoad", throwIfNotFound: true);
+        m_RTS_SelectArea = m_RTS.FindAction("SelectArea", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1313,6 +1345,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_RTS_PauseGame;
     private readonly InputAction m_RTS_QuickSave;
     private readonly InputAction m_RTS_QuickLoad;
+    private readonly InputAction m_RTS_SelectArea;
     /// <summary>
     /// Provides access to input actions defined in input action map "RTS".
     /// </summary>
@@ -1433,6 +1466,10 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @QuickLoad => m_Wrapper.m_RTS_QuickLoad;
         /// <summary>
+        /// Provides access to the underlying input action "RTS/SelectArea".
+        /// </summary>
+        public InputAction @SelectArea => m_Wrapper.m_RTS_SelectArea;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_RTS; }
@@ -1539,6 +1576,9 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
             @QuickLoad.started += instance.OnQuickLoad;
             @QuickLoad.performed += instance.OnQuickLoad;
             @QuickLoad.canceled += instance.OnQuickLoad;
+            @SelectArea.started += instance.OnSelectArea;
+            @SelectArea.performed += instance.OnSelectArea;
+            @SelectArea.canceled += instance.OnSelectArea;
         }
 
         /// <summary>
@@ -1631,6 +1671,9 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
             @QuickLoad.started -= instance.OnQuickLoad;
             @QuickLoad.performed -= instance.OnQuickLoad;
             @QuickLoad.canceled -= instance.OnQuickLoad;
+            @SelectArea.started -= instance.OnSelectArea;
+            @SelectArea.performed -= instance.OnSelectArea;
+            @SelectArea.canceled -= instance.OnSelectArea;
         }
 
         /// <summary>
@@ -2048,6 +2091,13 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnQuickLoad(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectArea" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectArea(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
