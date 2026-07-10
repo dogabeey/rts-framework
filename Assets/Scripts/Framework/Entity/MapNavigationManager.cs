@@ -14,6 +14,7 @@ namespace Game.Entity
         [Header("Edge Pan")]
         [SerializeField, Range(0.01f, 0.2f)] private float edgeBoundaryNormalized = 0.03f;
         [SerializeField] private float edgePanSpeed = 20f;
+        [SerializeField, Min(0f)] private float edgePanDelay = 0.15f;
 
         [Header("Middle Drag Pan")]
         [SerializeField] private float middleDragPanSpeed = 1f;
@@ -30,6 +31,7 @@ namespace Game.Entity
 
         private @RTS_InputActions inputActions;
         private bool isMiddleDragging;
+        private float edgeHoverTimer;
         private Vector3 dragStartWorldPoint;
 
         private void OnEnable()
@@ -49,6 +51,7 @@ namespace Game.Entity
             inputActions.Dispose();
             inputActions = null;
             isMiddleDragging = false;
+            edgeHoverTimer = 0f;
         }
 
         private void Update()
@@ -101,10 +104,18 @@ namespace Game.Entity
         {
             if (isMiddleDragging)
             {
+                edgeHoverTimer = 0f;
                 return;
             }
 
             if (!IsCursorNearScreenEdge(mouseScreenPosition))
+            {
+                edgeHoverTimer = 0f;
+                return;
+            }
+
+            edgeHoverTimer += Time.deltaTime;
+            if (edgeHoverTimer < edgePanDelay)
             {
                 return;
             }

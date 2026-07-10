@@ -69,9 +69,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Entity::Game.Entity.MovementController
   movementTagList: 0
-  baseSpeed: 0
-  baseAcceleration: 0
-  baseDeceleration: 0
+  baseSpeed: 3
+  baseAcceleration: 10
+  baseDeceleration: 10
+  stoppingDistance: 0.1
+  turnSpeed: 360
+  useFormationPriority: 1
+  formationPriority: 0
 --- !u!114 &5410998800843844096
 MonoBehaviour:
   m_ObjectHideFlags: 0

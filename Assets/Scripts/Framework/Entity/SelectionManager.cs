@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,6 +16,7 @@ namespace Game.Entity
         [SerializeField] private Camera worldCamera;
         [SerializeField] private Transform selectionPlane;
         [SerializeField] private LayerMask selectionPlaneLayerMask = ~0;
+        [SerializeField] private MovementManager movementManager;
 
         [Header("Selection Box Visual")]
         [SerializeField] private SelectionBoxMode selectionBoxMode = SelectionBoxMode.Sprite;
@@ -36,16 +38,20 @@ namespace Game.Entity
         private bool isPointerDown;
         private bool isDraggingSelection;
 
+        private readonly List<UnitController> selectedUnitsBuffer = new List<UnitController>();
+
         private void Awake()
         {
             ConfigureSelectionBoxRenderer();
             SetSelectionBoxVisible(false);
+            ResolveMovementManager();
         }
 
         private void OnEnable()
         {
             ConfigureSelectionBoxRenderer();
             SetSelectionBoxVisible(false);
+            ResolveMovementManager();
 
             inputActions = new @RTS_InputActions();
             inputActions.RTS.AddCallbacks(this);
@@ -98,6 +104,16 @@ namespace Game.Entity
                 selectionBoxRenderer.size = Vector2.one;
                 selectionBoxRenderer.transform.localScale = Vector3.one;
             }
+        }
+
+        private void ResolveMovementManager()
+        {
+            if (movementManager != null)
+            {
+                return;
+            }
+
+            movementManager = FindFirstObjectByType<MovementManager>();
         }
 
         private void SetSelectionBoxVisible(bool isVisible)
@@ -413,6 +429,45 @@ namespace Game.Entity
 
         public void OnCommandMove(InputAction.CallbackContext context)
         {
+            if (!context.performed)
+            {
+                return;
+            }
+
+            ResolveMovementManager();
+            if (movementManager == null)
+            {
+                return;
+            }
+
+            if (!TryGetPlanePoint(GetCurrentMouseScreenPosition(), out var targetPoint))
+            {
+                return;
+            }
+
+            selectedUnitsBuffer.Clear();
+            foreach (var selectable in SelectableComponent.All)
+            {
+                if (selectable == null || !selectable.IsSelected)
+                {
+                    continue;
+                }
+
+                if (!selectable.TryGetComponent<UnitController>(out var unitController)
+                    || unitController.movementController == null)
+                {
+                    continue;
+                }
+
+                selectedUnitsBuffer.Add(unitController);
+            }
+
+            if (selectedUnitsBuffer.Count == 0)
+            {
+                return;
+            }
+
+            movementManager.CommandMove(selectedUnitsBuffer, targetPoint);
         }
 
         public void OnCommandAttackMove(InputAction.CallbackContext context)
