@@ -7,7 +7,6 @@ namespace Game.Entity
     [RequireComponent( typeof(AttackableComponent), typeof(DamageableComponent))]
     public abstract class EntityController : MonoBehaviour
     {
-        [HideInInspector]
         public Entity referenceEntity;
 
         public Renderer entityRenderer;
@@ -22,6 +21,10 @@ namespace Game.Entity
         {
             attackableComponent = GetComponent<AttackableComponent>();
             damageableComponent = GetComponent<DamageableComponent>();
+            if (referenceEntity) // If referenceEntity is already assigned in the inspector, bind visuals immediately
+            {
+                OnSetReference();
+            }
         }
         public void SetReference(Entity referenceEntity)
         {
