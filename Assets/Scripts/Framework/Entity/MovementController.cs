@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using Game.ModifierSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Game.Entity
 {
+    [RequireComponent(typeof(NavMeshAgent))]
     public class MovementController : MonoBehaviour
     {
         public MovementTags MovementTagList => movementTagList;
@@ -26,13 +28,36 @@ namespace Game.Entity
         [SerializeField, FoldoutGroup("Formation")] private int formationPriority;
         [SerializeField, FoldoutGroup("Modifier")] private List<Modifier> movementModifiers = new List<Modifier>();
 
+        private NavMeshAgent navMeshAgent;
         private bool hasMoveTarget;
         private Vector3 currentMoveTarget;
-        private float currentSpeed;
+
+        private void Awake()
+        {
+            navMeshAgent = GetComponent<NavMeshAgent>();
+            ApplyAgentSettings();
+            ForceIdle();
+        }
+
+        private void OnEnable()
+        {
+            ApplyAgentSettings();
+            ForceIdle();
+        }
+
+        private void OnValidate()
+        {
+            if (!Application.isPlaying)
+            {
+                navMeshAgent = GetComponent<NavMeshAgent>();
+            }
+
+            ApplyAgentSettings();
+        }
 
         private void Update()
         {
-            TickMovement(Time.deltaTime);
+            TickMovement();
         }
 
         public void Move(float deltaTime, Vector2 targetPosition)
@@ -42,52 +67,79 @@ namespace Game.Entity
 
         public void SetMoveTarget(Vector3 worldTarget)
         {
+            if (navMeshAgent == null)
+            {
+                navMeshAgent = GetComponent<NavMeshAgent>();
+            }
+
+            if (navMeshAgent == null)
+            {
+                return;
+            }
+
+            ApplyAgentSettings();
             currentMoveTarget = worldTarget;
             hasMoveTarget = true;
+            navMeshAgent.isStopped = false;
+            navMeshAgent.SetDestination(worldTarget);
         }
 
         public void Stop()
         {
-            hasMoveTarget = false;
-            currentSpeed = 0f;
+            ForceIdle();
         }
 
-        private void TickMovement(float deltaTime)
+        private void TickMovement()
         {
-            if (!hasMoveTarget)
+            if (!hasMoveTarget || navMeshAgent == null)
             {
                 return;
             }
 
-            var toTarget = currentMoveTarget - transform.position;
-            var planarToTarget = new Vector3(toTarget.x, 0f, toTarget.z);
-            var remainingDistance = planarToTarget.magnitude;
-            if (remainingDistance <= stoppingDistance)
+            if (navMeshAgent.pathPending)
             {
-                transform.position = new Vector3(currentMoveTarget.x, transform.position.y, currentMoveTarget.z);
+                return;
+            }
+
+            if (!navMeshAgent.hasPath)
+            {
+                hasMoveTarget = false;
+                return;
+            }
+
+            var remainingDistance = navMeshAgent.remainingDistance;
+            if (!float.IsInfinity(remainingDistance)
+                && !float.IsNaN(remainingDistance)
+                && remainingDistance <= Mathf.Max(stoppingDistance, navMeshAgent.stoppingDistance))
+            {
                 Stop();
+            }
+        }
+
+        private void ApplyAgentSettings()
+        {
+            if (navMeshAgent == null)
+            {
                 return;
             }
 
-            var desiredSpeed = Mathf.Max(baseSpeed, 0f);
-            if (currentSpeed < desiredSpeed)
+            navMeshAgent.speed = Mathf.Max(0f, baseSpeed);
+            navMeshAgent.acceleration = Mathf.Max(0f, baseAcceleration);
+            navMeshAgent.angularSpeed = Mathf.Max(0f, turnSpeed);
+            navMeshAgent.stoppingDistance = Mathf.Max(0.01f, stoppingDistance);
+        }
+
+        private void ForceIdle()
+        {
+            hasMoveTarget = false;
+
+            if (navMeshAgent == null)
             {
-                currentSpeed = Mathf.Min(desiredSpeed, currentSpeed + Mathf.Max(baseAcceleration, 0f) * deltaTime);
-            }
-            else
-            {
-                currentSpeed = Mathf.Max(desiredSpeed, currentSpeed - Mathf.Max(baseDeceleration, 0f) * deltaTime);
+                return;
             }
 
-            var moveDirection = planarToTarget / remainingDistance;
-            var step = Mathf.Min(remainingDistance, currentSpeed * deltaTime);
-            transform.position += moveDirection * step;
-
-            if (moveDirection.sqrMagnitude > 0.0001f)
-            {
-                var targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Mathf.Max(turnSpeed, 0f) * deltaTime);
-            }
+            navMeshAgent.isStopped = true;
+            navMeshAgent.ResetPath();
         }
 
         [System.Flags]

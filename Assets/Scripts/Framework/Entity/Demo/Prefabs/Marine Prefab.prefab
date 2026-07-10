@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4454250902617817406}
   - component: {fileID: 6280334835166950448}
   - component: {fileID: 8769683863573143056}
+  - component: {fileID: 628910974911238256}
   m_Layer: 3
   m_Name: Marine Prefab
   m_TagString: Untagged
@@ -162,6 +163,28 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!195 &628910974911238256
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972414987311778779}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3
+  m_Acceleration: 10
+  avoidancePriority: 50
+  m_AngularSpeed: 360
+  m_StoppingDistance: 0.1
+  m_AutoTraverseOffMeshLink: 0
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &2401487089313586602
 GameObject:
   m_ObjectHideFlags: 0
