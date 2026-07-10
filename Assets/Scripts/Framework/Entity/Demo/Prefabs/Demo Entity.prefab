@@ -17,8 +17,10 @@ GameObject:
   - component: {fileID: 6280334835166950448}
   - component: {fileID: 8769683863573143056}
   - component: {fileID: 628910974911238256}
+  - component: {fileID: 5220952694381926273}
+  - component: {fileID: 2031656479454377876}
   m_Layer: 3
-  m_Name: Marine Prefab
+  m_Name: Demo Entity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -198,6 +200,75 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!95 &5220952694381926273
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972414987311778779}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2031656479454377876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972414987311778779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef8db1ec56443da4b9fa7ed18aa8c57a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Entity::Game.Entity.EntityAnimationController
+  animator: {fileID: 0}
+  entityController: {fileID: 2200269167179679837}
+  defaultAnimationState:
+    rid: 3297713716049740061
+  stateAnimationMappings:
+  - state:
+      rid: 3297713716049740064
+    animationName: idle
+  - state:
+      rid: 3297713716049740065
+    animationName: attack
+  - state:
+      rid: 3297713716049740066
+    animationName: death
+  - state:
+      rid: 3297713716049740067
+    animationName: move
+  references:
+    version: 2
+    RefIds:
+    - rid: 3297713716049740061
+      type: {class: IdleAnimationState, ns: Game.Entity, asm: Game.Entity}
+      data: 
+    - rid: 3297713716049740064
+      type: {class: IdleAnimationState, ns: Game.Entity, asm: Game.Entity}
+      data: 
+    - rid: 3297713716049740065
+      type: {class: AttackingAnimationState, ns: Game.Entity, asm: Game.Entity}
+      data: 
+    - rid: 3297713716049740066
+      type: {class: DeathAnimationState, ns: Game.Entity, asm: Game.Entity}
+      data: 
+    - rid: 3297713716049740067
+      type: {class: MovingAnimationState, ns: Game.Entity, asm: Game.Entity}
+      data: 
 --- !u!1 &2401487089313586602
 GameObject:
   m_ObjectHideFlags: 0
