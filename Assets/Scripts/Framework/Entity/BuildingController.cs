@@ -8,7 +8,7 @@ namespace Game.Entity
 
         protected override void UpdateEntityState()
         {
-            throw new System.NotImplementedException();
+            base.UpdateEntityState();
         }
     }
 }

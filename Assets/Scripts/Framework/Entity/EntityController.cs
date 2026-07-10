@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.Core;
+using System;
 
 namespace Game.Entity
 {
@@ -7,29 +8,14 @@ namespace Game.Entity
     [RequireComponent( typeof(AttackableComponent), typeof(DamageableComponent))]
     public abstract class EntityController : MonoBehaviour
     {
-        public EntityMissionState EntityState
-        {
-            get
-            {
-                return entityState;
-            }
-            set
-            {
-                if(entityState != value)
-                    OnEntityStateChange(value);
-                entityState = value;
-            }
-        }
+        public EntityMissionState EntityState => entityState;
 
-        protected virtual void OnEntityStateChange(EntityMissionState value)
-        {
-            
-        }
+        public event Action<EntityMissionState, EntityMissionState> StateChanged;
 
-        protected abstract void UpdateEntityState();
+        [SerializeField] protected EntityMissionType initialMissionState = EntityMissionType.Idle;
 
         public Entity referenceEntity;
-        public EntityMissionState entityState;
+        [SerializeField] protected EntityMissionState entityState;
         public Renderer entityRenderer;
         public AttackableComponent attackableComponent;
         public DamageableComponent damageableComponent;
@@ -37,11 +23,19 @@ namespace Game.Entity
         protected virtual void Start()
         {
             InitReferences();
+            SetMissionState(initialMissionState, true);
         }
         protected virtual void Update() 
         {
             UpdateEntityState();
         }
+
+        protected virtual void UpdateEntityState()
+        {
+            entityState?.OnStateUpdate(this);
+            SetMissionState(EntityMissionType.Flee);
+        }
+
         protected virtual void InitReferences()
         {
             attackableComponent = GetComponent<AttackableComponent>();
@@ -67,6 +61,38 @@ namespace Game.Entity
         private void BindVisuals()
         {
             referenceEntity.SetVisualData(ref entityRenderer);
+        }
+
+        public bool SetMissionState(EntityMissionType missionType, bool force = false)
+        {
+            return ChangeState(EntityMissionStateFactory.GetState(missionType), force);
+        }
+
+        public bool ChangeState(EntityMissionState nextState, bool force = false)
+        {
+            if (nextState == null)
+            {
+                return false;
+            }
+
+            if (!force && entityState == nextState)
+            {
+                return false;
+            }
+
+            var previousState = entityState;
+            previousState?.OnExitState(this);
+
+            entityState = nextState;
+            entityState.OnEnterState(this);
+
+            OnEntityStateChange(previousState, entityState);
+            StateChanged?.Invoke(previousState, entityState);
+            return true;
+        }
+
+        protected virtual void OnEntityStateChange(EntityMissionState previousState, EntityMissionState nextState)
+        {
         }
     }
 }

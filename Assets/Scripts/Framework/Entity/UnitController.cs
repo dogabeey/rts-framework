@@ -18,6 +18,7 @@ namespace Game.Entity
 
         protected override void UpdateEntityState()
         {
+            base.UpdateEntityState();
         }
     }
 }
