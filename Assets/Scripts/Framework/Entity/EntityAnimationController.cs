@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using Game.EventManagement;
 
@@ -14,12 +15,14 @@ namespace Game.Entity
             public GameEvent gameEvent;
             [SerializeReference]
             public AnimationState state;
+            [ValueDropdown("@$root.GetAllBooleanParameters()")]
             public string booleanParameterName;
         }
         [System.Serializable]
         public class TriggerAnimationMapping
         {
             public GameEvent gameEvent;
+            [ValueDropdown("@$root.GetAllTriggerParameters()")]
             public string triggerParameterName;
         }
 
@@ -140,6 +143,36 @@ namespace Game.Entity
             {
                 animator.SetBool(booleanParameterName, true);
             }
+        }
+        public ValueDropdownList<string> GetAllBooleanParameters()
+        {
+            ValueDropdownList<string> booleanList = new ValueDropdownList<string>();
+
+            // Loop through all parameters exposed on the controller
+            foreach (AnimatorControllerParameter parameter in animator.parameters)
+            {
+                if (parameter.type == AnimatorControllerParameterType.Bool)
+                {
+                    booleanList.Add(parameter.name, parameter.name);
+                }
+            }
+
+            return booleanList;
+        }
+        public ValueDropdownList<string> GetAllTriggerParameters()
+        {
+            ValueDropdownList<string> triggerList = new ValueDropdownList<string>();
+
+            // Loop through all parameters exposed on the controller
+            foreach (AnimatorControllerParameter parameter in animator.parameters)
+            {
+                if (parameter.type == AnimatorControllerParameterType.Trigger)
+                {
+                    triggerList.Add(parameter.name, parameter.name);
+                }
+            }
+
+            return triggerList;
         }
     }
 }
