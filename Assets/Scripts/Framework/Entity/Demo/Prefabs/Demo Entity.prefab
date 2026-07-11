@@ -241,16 +241,18 @@ MonoBehaviour:
   stateAnimationMappings:
   - state:
       rid: 3297713716049740064
-    animationName: idle
-  - state:
-      rid: 3297713716049740065
-    animationName: attack
+    booleanParameterName: idle
   - state:
       rid: 3297713716049740066
-    animationName: death
+    booleanParameterName: dead
   - state:
       rid: 3297713716049740067
-    animationName: move
+    booleanParameterName: move
+  triggerAnimationMappings:
+  - gameEvent: 307
+    triggerParameterName: attack
+  - gameEvent: 300
+    triggerParameterName: selected
   references:
     version: 2
     RefIds:
@@ -259,9 +261,6 @@ MonoBehaviour:
       data: 
     - rid: 3297713716049740064
       type: {class: IdleAnimationState, ns: Game.Entity, asm: Game.Entity}
-      data: 
-    - rid: 3297713716049740065
-      type: {class: AttackingAnimationState, ns: Game.Entity, asm: Game.Entity}
       data: 
     - rid: 3297713716049740066
       type: {class: DeathAnimationState, ns: Game.Entity, asm: Game.Entity}

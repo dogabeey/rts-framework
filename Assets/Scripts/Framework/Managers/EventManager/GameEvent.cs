@@ -18,4 +18,5 @@ public enum GameEvent
     ENTITY_ATTACKED = 307,
     ENTITY_DAMAGED = 308,
     ENTITY_STOPPED = 309,
+    ENTITY_DIED = 310,
 }

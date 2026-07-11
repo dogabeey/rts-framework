@@ -20,9 +20,12 @@ namespace Game.Entity
         [ReadOnly]
         public float currentHealth;
 
+        private bool isDead;
+
         public void Start()
         {
             currentHealth = maxHealth;
+            isDead = false;
         }
 
         public void TakeDamage(float amount)
@@ -56,7 +59,18 @@ namespace Game.Entity
 
         private void HandleDeath()
         {
-            throw new NotImplementedException("Death handling logic is not implemented yet.");
+            if (isDead)
+            {
+                return;
+            }
+
+            isDead = true;
+
+            EventParam diedParam = new EventParam();
+            diedParam.Set(EventParam.Keys.GameObject, gameObject);
+            diedParam.Set("entityController", referenceEntity);
+            diedParam.Set("finalHealth", currentHealth);
+            EventManager.TriggerEvent(GameEvent.ENTITY_DIED, diedParam);
         }
 
         private float CalculateEffectiveDamage(float amount)

@@ -11,10 +11,12 @@ namespace Game.Entity
         [System.Serializable]
         public class StateAnimationMapping
         {
+            public GameEvent gameEvent;
             [SerializeReference]
             public AnimationState state;
             public string booleanParameterName;
         }
+        [System.Serializable]
         public class TriggerAnimationMapping
         {
             public GameEvent gameEvent;
@@ -50,6 +52,21 @@ namespace Game.Entity
                     }
                 );
             }
+            foreach (var mapping in stateAnimationMappings)
+            {
+                EventManager.StartListening(mapping.gameEvent, (EventParam e) =>
+                    {
+                        if(e.paramDictionary != null 
+                        && e.paramDictionary.ContainsKey("Entity")
+                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
+                        && entityObj is EntityController entityController
+                        && entityController == this.entityController)
+                        {
+                            CurrentAnimationState = mapping.state;
+                        }
+                    }
+                );
+            }
         }
         private void OnDisable()
         {
@@ -64,6 +81,21 @@ namespace Game.Entity
                         && entityController == this.entityController)
                         {
                             animator.SetTrigger(mapping.triggerParameterName);
+                        }
+                    }
+                );
+            }
+            foreach (var mapping in stateAnimationMappings)
+            {
+                EventManager.StopListening(mapping.gameEvent, (EventParam e) =>
+                    {
+                        if(e.paramDictionary != null 
+                        && e.paramDictionary.ContainsKey("Entity")
+                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
+                        && entityObj is EntityController entityController
+                        && entityController == this.entityController)
+                        {
+                            CurrentAnimationState = mapping.state;
                         }
                     }
                 );
@@ -90,9 +122,24 @@ namespace Game.Entity
             }
         }
 
+        private string GetBooleanParameterNameForState(AnimationState state)
+        {
+            foreach (var mapping in stateAnimationMappings)
+            {
+                if (mapping.state == state)
+                {
+                    return mapping.booleanParameterName;
+                }
+            }
+            return null;
+        }
         private void UpdateAnimatorState()
         {
-            // Implement animator update logic here
+            string booleanParameterName = GetBooleanParameterNameForState(defaultAnimationState);
+            if (!string.IsNullOrEmpty(booleanParameterName))
+            {
+                animator.SetBool(booleanParameterName, true);
+            }
         }
     }
 }
