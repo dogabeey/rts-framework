@@ -1,0 +1,16 @@
+{
+    "name": "Game.RTS.Definitions",
+    "rootNamespace": "Game.RTS",
+    "references": [
+        "GUID:1d8a0e50a6f74ca4393570864b11c9ff"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

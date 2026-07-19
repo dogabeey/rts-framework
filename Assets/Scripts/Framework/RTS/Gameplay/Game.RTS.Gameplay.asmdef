@@ -1,0 +1,20 @@
+{
+    "name": "Game.RTS.Gameplay",
+    "rootNamespace": "Game.RTS",
+    "references": [
+        "GUID:82bc4f01d2f742bb91a7cfcba1fc6a72",
+        "GUID:556af0cd0112c3344a7d98d603854f3d",
+        "GUID:c7e5ee813c213b740844ac0fcb653fbe",
+        "GUID:1d8a0e50a6f74ca4393570864b11c9ff",
+        "GUID:13fa7b05da790f042aeee77b715d2043"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
