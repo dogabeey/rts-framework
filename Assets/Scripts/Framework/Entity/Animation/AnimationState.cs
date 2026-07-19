@@ -1,8 +1,10 @@
 using System;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace Game.Entity
 {
     [Serializable]
+    [MovedFrom(true, "Game.Entity", "Game.Entity", "AnimationState")]
     public abstract class AnimationState
     {
         public abstract string ParameterName { get; }
@@ -12,6 +14,7 @@ namespace Game.Entity
     }
 
     [Serializable]
+    [MovedFrom(true, "Game.Entity", "Game.Entity", "IdleAnimationState")]
     public class IdleAnimationState : AnimationState
     {
         public override string ParameterName => "Idle";
@@ -32,6 +35,7 @@ namespace Game.Entity
         }
     }
     [Serializable]
+    [MovedFrom(true, "Game.Entity", "Game.Entity", "MovingAnimationState")]
     public class MovingAnimationState : AnimationState
     {
         public override string ParameterName => "Moving";
@@ -52,6 +56,7 @@ namespace Game.Entity
         }
     }
     [Serializable]
+    [MovedFrom(true, "Game.Entity", "Game.Entity", "AttackingAnimationState")]
     public class AttackingAnimationState : AnimationState
     {
         public override string ParameterName => "Attacking";
@@ -72,6 +77,7 @@ namespace Game.Entity
         }
     }
     [Serializable]
+    [MovedFrom(true, "Game.Entity", "Game.Entity", "DeathAnimationState")]
     public class DeathAnimationState : AnimationState
     {
         public override string ParameterName => "Dying";

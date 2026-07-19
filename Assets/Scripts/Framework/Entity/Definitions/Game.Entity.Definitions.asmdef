@@ -1,8 +1,8 @@
 {
-    "name": "Game.Entity.Demo",
-    "rootNamespace": "Game.Entity.Demo",
+    "name": "Game.Entity.Definitions",
+    "rootNamespace": "Game.Entity",
     "references": [
-        "GUID:0318c95f98fe71b4e8932b12e02ed81f"
+        "GUID:1d8a0e50a6f74ca4393570864b11c9ff"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
