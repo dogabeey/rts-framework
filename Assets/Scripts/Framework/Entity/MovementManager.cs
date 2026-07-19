@@ -6,7 +6,7 @@ namespace Game.Entity
     [DisallowMultipleComponent]
     public class MovementManager : MonoBehaviour
     {
-        public void CommandMove(IReadOnlyList<UnitController> units, Vector3 targetPosition)
+        public void CommandMove(IReadOnlyList<UnitController> units, Vector3 targetPosition, bool queue = false)
         {
             if (units == null || units.Count == 0)
             {
@@ -52,7 +52,33 @@ namespace Game.Entity
             movers.Sort(CompareByPriorityThenType);
             for (var i = 0; i < movers.Count; i++)
             {
-                movers[i].movementController.SetMoveTarget(targetPosition + slots[i]);
+                var moveTarget = targetPosition + slots[i];
+                if (queue)
+                {
+                    movers[i].movementController.QueueMoveTarget(moveTarget);
+                }
+                else
+                {
+                    movers[i].movementController.SetMoveTarget(moveTarget);
+                }
+            }
+        }
+
+        public void CommandPatrol(IReadOnlyList<UnitController> units, Vector3 targetPosition)
+        {
+            if (units == null || units.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var unit in units)
+            {
+                if (unit == null || unit.movementController == null)
+                {
+                    continue;
+                }
+
+                unit.movementController.BeginPatrol(unit.transform.position, targetPosition);
             }
         }
 

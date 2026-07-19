@@ -222,7 +222,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""SelectControlGroup1"",
                     ""type"": ""Button"",
                     ""id"": ""695d2554-e86f-4a67-845d-6574b8937d28"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -267,7 +267,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""SetControlGroup1"",
                     ""type"": ""Button"",
                     ""id"": ""59f5db5b-1227-4bdb-87d9-f79e381f8aad"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false

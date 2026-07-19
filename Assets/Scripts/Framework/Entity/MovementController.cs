@@ -20,6 +20,7 @@ namespace Game.Entity
         public int MaxUnitsPerRow => maxUnitsPerRow;
         public bool HasMoveTarget => hasMoveTarget;
         public Vector3 CurrentMoveTarget => currentMoveTarget;
+        public bool IsPatrolling => isPatrolling;
 
         [ReadOnly] public  EntityController referenceEntity;
 
@@ -38,6 +39,10 @@ namespace Game.Entity
         private NavMeshAgent navMeshAgent;
         private bool hasMoveTarget;
         private Vector3 currentMoveTarget;
+        private readonly Queue<Vector3> queuedMoveTargets = new Queue<Vector3>();
+        private bool isPatrolling;
+        private Vector3 patrolOrigin;
+        private Vector3 patrolDestination;
 
         private void Awake()
         {
@@ -73,6 +78,34 @@ namespace Game.Entity
         }
 
         public void SetMoveTarget(Vector3 worldTarget)
+        {
+            queuedMoveTargets.Clear();
+            isPatrolling = false;
+            StartMove(worldTarget);
+        }
+
+        public void QueueMoveTarget(Vector3 worldTarget)
+        {
+            if (!hasMoveTarget)
+            {
+                SetMoveTarget(worldTarget);
+                return;
+            }
+
+            isPatrolling = false;
+            queuedMoveTargets.Enqueue(worldTarget);
+        }
+
+        public void BeginPatrol(Vector3 origin, Vector3 destination)
+        {
+            queuedMoveTargets.Clear();
+            patrolOrigin = origin;
+            patrolDestination = destination;
+            isPatrolling = true;
+            StartMove(patrolDestination);
+        }
+
+        private void StartMove(Vector3 worldTarget)
         {
             if (navMeshAgent == null)
             {
@@ -116,7 +149,7 @@ namespace Game.Entity
 
             if (!navMeshAgent.hasPath)
             {
-                hasMoveTarget = false;
+                AdvanceMoveOrder();
                 return;
             }
 
@@ -125,8 +158,28 @@ namespace Game.Entity
                 && !float.IsNaN(remainingDistance)
                 && remainingDistance <= Mathf.Max(stoppingDistance, navMeshAgent.stoppingDistance))
             {
-                Stop();
+                AdvanceMoveOrder();
             }
+        }
+
+        private void AdvanceMoveOrder()
+        {
+            if (queuedMoveTargets.Count > 0)
+            {
+                StartMove(queuedMoveTargets.Dequeue());
+                return;
+            }
+
+            if (isPatrolling)
+            {
+                var nextTarget = Vector3.SqrMagnitude(currentMoveTarget - patrolDestination) < 0.0001f
+                    ? patrolOrigin
+                    : patrolDestination;
+                StartMove(nextTarget);
+                return;
+            }
+
+            Stop();
         }
 
         private void ApplyAgentSettings()
@@ -146,6 +199,8 @@ namespace Game.Entity
         {
             bool wasMoving = hasMoveTarget;
             hasMoveTarget = false;
+            queuedMoveTargets.Clear();
+            isPatrolling = false;
 
             if (navMeshAgent == null)
             {

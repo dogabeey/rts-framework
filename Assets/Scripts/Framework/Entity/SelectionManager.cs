@@ -261,6 +261,45 @@ namespace Game.Entity
             return inputActions != null && inputActions.RTS.AddToSelection.IsPressed();
         }
 
+        private bool IsQueueModifierActive()
+        {
+            return inputActions != null && inputActions.RTS.QueueModifier.IsPressed();
+        }
+
+        private void CollectSelectedUnits()
+        {
+            selectedUnitsBuffer.Clear();
+            foreach (var selectable in SelectableComponent.All)
+            {
+                if (selectable != null && selectable.IsSelected
+                    && selectable.TryGetComponent<UnitController>(out var unitController)
+                    && unitController.movementController != null)
+                {
+                    selectedUnitsBuffer.Add(unitController);
+                }
+            }
+        }
+
+        private bool TryGetSelectedUnits(out IReadOnlyList<UnitController> units)
+        {
+            CollectSelectedUnits();
+            units = selectedUnitsBuffer;
+            return selectedUnitsBuffer.Count > 0;
+        }
+
+        private bool TryGetCommandTarget(out Vector3 targetPoint)
+        {
+            return TryGetPlanePoint(GetCurrentMouseScreenPosition(), out targetPoint);
+        }
+
+        private void SetSelectedUnitsMission(EntityMissionType missionType)
+        {
+            foreach (var unit in selectedUnitsBuffer)
+            {
+                unit.SetMissionState(missionType, true);
+            }
+        }
+
         private Vector2 GetCurrentMouseScreenPosition()
         {
             if (inputActions != null)
@@ -440,50 +479,79 @@ namespace Game.Entity
                 return;
             }
 
-            if (!TryGetPlanePoint(GetCurrentMouseScreenPosition(), out var targetPoint))
+            if (!TryGetCommandTarget(out var targetPoint))
             {
                 return;
             }
 
-            selectedUnitsBuffer.Clear();
-            foreach (var selectable in SelectableComponent.All)
-            {
-                if (selectable == null || !selectable.IsSelected)
-                {
-                    continue;
-                }
-
-                if (!selectable.TryGetComponent<UnitController>(out var unitController)
-                    || unitController.movementController == null)
-                {
-                    continue;
-                }
-
-                selectedUnitsBuffer.Add(unitController);
-            }
-
-            if (selectedUnitsBuffer.Count == 0)
+            if (!TryGetSelectedUnits(out var units))
             {
                 return;
             }
 
-            movementManager.CommandMove(selectedUnitsBuffer, targetPoint);
+            var queue = IsQueueModifierActive();
+            if (!queue)
+            {
+                // There is no separate Move mission. Resetting to Idle cancels an
+                // attack-move/patrol order before the new move target is issued.
+                SetSelectedUnitsMission(EntityMissionType.Idle);
+            }
+
+            movementManager.CommandMove(units, targetPoint, queue);
         }
 
         public void OnCommandAttackMove(InputAction.CallbackContext context)
         {
+            if (!context.performed || !TryGetCommandTarget(out var targetPoint) || !TryGetSelectedUnits(out var units))
+            {
+                return;
+            }
+
+            ResolveMovementManager();
+            if (movementManager == null)
+            {
+                return;
+            }
+
+            movementManager.CommandMove(units, targetPoint, IsQueueModifierActive());
+            SetSelectedUnitsMission(EntityMissionType.AttackMove);
         }
 
         public void OnStopCommand(InputAction.CallbackContext context)
         {
+            if (!context.performed || !TryGetSelectedUnits(out _))
+            {
+                return;
+            }
+
+            SetSelectedUnitsMission(EntityMissionType.Idle);
         }
 
         public void OnHoldPosition(InputAction.CallbackContext context)
         {
+            if (!context.performed || !TryGetSelectedUnits(out _))
+            {
+                return;
+            }
+
+            SetSelectedUnitsMission(EntityMissionType.Guard);
         }
 
         public void OnPatrolCommand(InputAction.CallbackContext context)
         {
+            if (!context.performed || !TryGetCommandTarget(out var targetPoint) || !TryGetSelectedUnits(out var units))
+            {
+                return;
+            }
+
+            ResolveMovementManager();
+            if (movementManager == null)
+            {
+                return;
+            }
+
+            movementManager.CommandPatrol(units, targetPoint);
+            SetSelectedUnitsMission(EntityMissionType.Patrol);
         }
 
         public void OnQueueModifier(InputAction.CallbackContext context)
