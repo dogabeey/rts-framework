@@ -1,34 +1,14 @@
 using UnityEngine;
-using Game.Core;
-using Sirenix.OdinInspector;
-using Game.RTS.Orders;
 using System.Reflection;
+using Sirenix.OdinInspector;
 using UnityEngine.InputSystem;
-using System.Linq;
 
-namespace Game.RTS
+namespace Game.RTS.Orders
 {
-    public abstract class Entity : ScriptableObject, IVisualData
+    [CreateAssetMenu(fileName = "RTSOrder", menuName = "Scriptable Objects/RTSOrder")]
+    public class Order : ScriptableObject
     {
-        [System.Serializable]
-        public class OrderData
-        {
-            public Order order;
-            public int orderIndex;
-            [ValueDropdown("@Entity.GetAllInputActionFieldNamesInRTSInputActionAsset()", ExpandAllMenuItems = true)]
-            public string inputActionFieldName;
-        }
-        public Mesh MeshReference => meshReference;
-        public Material MaterialReference => materialReference;
-        public Sprite SpriteReference => spriteReference;
-
-        public Mesh meshReference;
-        public Material materialReference;
-        public Sprite spriteReference;
-
-        [FoldoutGroup("General")] public string _name;
-        [FoldoutGroup("General")] public OrderData[] orderDataArray;
-
+        
         public static ValueDropdownList<string> GetAllInputActionFieldNamesInRTSInputActionAsset()
         {
             ValueDropdownList<string> inputActionFieldNames = new ValueDropdownList<string>();

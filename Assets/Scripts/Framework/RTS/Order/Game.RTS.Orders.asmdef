@@ -1,9 +1,7 @@
 {
-    "name": "Game.RTS.Definitions",
-    "rootNamespace": "Game.RTS",
+    "name": "Game.RTS.Orders",
+    "rootNamespace": "Game.RTS.Orders",
     "references": [
-        "GUID:1d8a0e50a6f74ca4393570864b11c9ff",
-        "GUID:a584c0443c5fc8449a48e2722e5cf4fa",
         "GUID:61b90b11b4c56724e8b8ed22411286e9",
         "GUID:75469ad4d38634e559750d17036d5f7c"
     ],

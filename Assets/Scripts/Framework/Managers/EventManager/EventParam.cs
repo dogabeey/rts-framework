@@ -16,6 +16,7 @@ public class EventParam
         public const string Type = "type";
         public const string VectorList = "vectorList";
         public const string Bool = "bool";
+        public const string Entity = "entity";
     }
 
     public GameObject paramObj;
