@@ -40,6 +40,13 @@ namespace Game.RTS
 
         private readonly List<UnitController> selectedUnitsBuffer = new List<UnitController>();
         private readonly List<EntityController> selectedEntitiesBuffer = new List<EntityController>();
+        private readonly List<PendingOrderExecution> pendingOrderExecutions = new List<PendingOrderExecution>();
+
+        private struct PendingOrderExecution
+        {
+            public Order Order;
+            public IEntityController EntityController;
+        }
 
         private void Awake()
         {
@@ -86,6 +93,7 @@ namespace Game.RTS
             SetSelectionBoxVisible(false);
             isPointerDown = false;
             isDraggingSelection = false;
+            ClearPendingOrderSelection();
 
             if (inputActions == null)
             {
@@ -346,6 +354,8 @@ namespace Game.RTS
             // "m_RTS_Skill1"), while the callback exposes the action name ("Skill1").
             var inputActionFieldName = $"m_RTS_{context.action.name}";
 
+            var hasMatchingOrder = false;
+            var hasTargetedOrder = false;
             foreach (var entityController in entities)
             {
                 var orderDataArray = entityController.referenceEntity != null
@@ -365,13 +375,33 @@ namespace Game.RTS
                         continue;
                     }
 
-                    if (TryExecuteOrder(orderData.order, entityController))
+                    if (!hasMatchingOrder)
                     {
-                        // An entity can define several orders for a single action;
-                        // execute only the first applicable one for this input.
+                        // A newly chosen order replaces any target order that was
+                        // waiting for a click.
+                        ClearPendingOrderSelection();
+                        hasMatchingOrder = true;
+                    }
+
+                    if (orderData.order.TargetType == TargetType.None)
+                    {
+                        orderData.order.ExecuteOrder(entityController, default, null);
                         break;
                     }
+
+                    pendingOrderExecutions.Add(new PendingOrderExecution
+                    {
+                        Order = orderData.order,
+                        EntityController = entityController
+                    });
+                    hasTargetedOrder = true;
+                    break;
                 }
+            }
+
+            if (hasTargetedOrder)
+            {
+                SetOrderCursor(pendingOrderExecutions[0].Order.CursorTexture);
             }
         }
 
@@ -381,35 +411,45 @@ namespace Game.RTS
                 && (configuredInput == actionName || configuredInput == actionFieldName);
         }
 
-        private bool TryExecuteOrder(Order order, IEntityController entityController)
+        private bool TryExecutePendingOrders()
         {
-            switch (order.TargetType)
+            var hasPositionTarget = TryGetCommandTarget(out var targetPosition);
+            var hasEntityTarget = TryGetCommandTargetEntity(out var targetEntity);
+            var executedOrder = false;
+
+            foreach (var pendingExecution in pendingOrderExecutions)
             {
-                case TargetType.None:
-                    order.ExecuteOrder(entityController, default, null);
-                    return true;
+                switch (pendingExecution.Order.TargetType)
+                {
+                    case TargetType.Position when hasPositionTarget:
+                        pendingExecution.Order.ExecuteOrder(pendingExecution.EntityController, targetPosition, null);
+                        executedOrder = true;
+                        break;
 
-                case TargetType.Position:
-                    if (!TryGetCommandTarget(out var targetPosition))
-                    {
-                        return false;
-                    }
-
-                    order.ExecuteOrder(entityController, targetPosition, null);
-                    return true;
-
-                case TargetType.Entity:
-                    if (!TryGetCommandTargetEntity(out var targetEntity))
-                    {
-                        return false;
-                    }
-
-                    order.ExecuteOrder(entityController, default, targetEntity);
-                    return true;
-
-                default:
-                    return false;
+                    case TargetType.Entity when hasEntityTarget:
+                        pendingExecution.Order.ExecuteOrder(pendingExecution.EntityController, default, targetEntity);
+                        executedOrder = true;
+                        break;
+                }
             }
+
+            if (executedOrder)
+            {
+                ClearPendingOrderSelection();
+            }
+
+            return executedOrder;
+        }
+
+        private void ClearPendingOrderSelection()
+        {
+            pendingOrderExecutions.Clear();
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        }
+
+        private static void SetOrderCursor(Texture2D cursorTexture)
+        {
+            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         }
 
         private void SetSelectedUnitsMission(EntityMissionType missionType)
@@ -567,6 +607,17 @@ namespace Game.RTS
 
             isPointerDown = false;
             var endMousePosition = GetCurrentMouseScreenPosition();
+
+            if (pendingOrderExecutions.Count > 0)
+            {
+                // Keep target-selection active if this click does not satisfy the
+                // selected order's target type.
+                TryExecutePendingOrders();
+                SetSelectionBoxVisible(false);
+                isDraggingSelection = false;
+                return;
+            }
+
             var additive = IsAdditiveSelectionActive();
 
             if (isDraggingSelection)

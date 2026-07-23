@@ -19,6 +19,8 @@ namespace Game.RTS
         public abstract string Name { get; }
         public abstract string Description { get; }
         public abstract Sprite Icon { get; }
+        // Cursor when that order is selected
+        public abstract Texture2D CursorTexture { get; }
 
         public abstract TargetType TargetType { get; }
 
@@ -62,6 +64,16 @@ namespace Game.RTS
 
     public class MoveOrder : PositionTargetedOrder
     {
+        [SerializeField] private string name = "Move";
+        [SerializeField] private string description = "Move to the selected position.";
+        [SerializeField] private Sprite icon;
+        [SerializeField] private Texture2D cursorTexture;
+
+        public override string Name => name;
+        public override string Description => description;
+        public override Sprite Icon => icon;
+        public override Texture2D CursorTexture => cursorTexture;
+
         public override void ExecuteOrder(IEntityController entityController, Vector3 targetPosition, IEntityController targetEntityController)
         {
             entityController.MoveTo(targetPosition);
