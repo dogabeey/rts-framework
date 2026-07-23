@@ -1,7 +1,6 @@
 using UnityEngine;
 using Game.Core;
 using Sirenix.OdinInspector;
-using Game.RTS.Orders;
 using System.Reflection;
 using UnityEngine.InputSystem;
 using System.Linq;
@@ -16,7 +15,8 @@ namespace Game.RTS
             public Order order;
             public int orderIndex;
             [ValueDropdown("@Entity.GetAllInputActionFieldNamesInRTSInputActionAsset()", ExpandAllMenuItems = true)]
-            public string inputActionFieldName;
+            [Tooltip("This is the name of the InputAction field in the RTS_InputActions asset that will be used to trigger this order. If left empty, the default InputAction for this order will be used.")]
+            public string inputActionOverride;
         }
         public Mesh MeshReference => meshReference;
         public Material MaterialReference => materialReference;

@@ -1,0 +1,14 @@
+{
+    "name": "Game.RTS.Enums",
+    "rootNamespace": "Game.RTS.Enums",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

@@ -3,11 +3,23 @@ using System.Reflection;
 using Sirenix.OdinInspector;
 using UnityEngine.InputSystem;
 
-namespace Game.RTS.Orders
+namespace Game.RTS
 {
-    [CreateAssetMenu(fileName = "RTSOrder", menuName = "Scriptable Objects/RTSOrder")]
-    public class Order : ScriptableObject
+    public enum TargetType
     {
+        None,
+        Position,
+        Entity
+    }
+
+    [System.Serializable]
+    public abstract class Order
+    {
+        public string orderName;
+        public string description;
+        public Sprite icon;
+
+        public abstract TargetType TargetType { get; }
         
         public static ValueDropdownList<string> GetAllInputActionFieldNamesInRTSInputActionAsset()
         {
@@ -32,5 +44,11 @@ namespace Game.RTS.Orders
 
             return inputActionFieldNames;
         }
+    }
+
+    public abstract class EntityOrder : Order
+    {
+        public override TargetType TargetType => TargetType.Entity;
+        public abstract UnitType UnitType { get; }
     }
 }

@@ -623,5 +623,17 @@ namespace Game.RTS
             // Drag lifecycle is driven by Select press/release + Update mouse position polling
             // to avoid Hold interaction timing and canvas mode inconsistencies.
         }
+        public void OnSkill1(InputAction.CallbackContext context)
+        {
+        }
+        public void OnSkill2(InputAction.CallbackContext context)
+        {
+        }
+        public void OnSkill3(InputAction.CallbackContext context)
+        {
+        }
+        public void OnSkill4(InputAction.CallbackContext context)
+        {
+        }
     }
 }

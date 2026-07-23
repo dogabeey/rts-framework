@@ -3,7 +3,8 @@
     "rootNamespace": "Game.RTS.Orders",
     "references": [
         "GUID:61b90b11b4c56724e8b8ed22411286e9",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:3f78e9a24a9a4f25928baeb7481ca0c3"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
