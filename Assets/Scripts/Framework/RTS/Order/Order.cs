@@ -24,7 +24,7 @@ namespace Game.RTS
 
         public abstract TargetType TargetType { get; }
 
-        public abstract void ExecuteOrder(IEntityController entityController, Vector3 targetPosition, IEntityController targetEntityController);
+        public abstract void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController);
         
         public static ValueDropdownList<string> GetAllInputActionFieldNamesInRTSInputActionAsset()
         {
@@ -51,17 +51,59 @@ namespace Game.RTS
         }
     }
 
+    [System.Serializable]
     public abstract class EntityTargetedOrder : Order
     {
         public override TargetType TargetType => TargetType.Entity;
         public abstract List<UnitType> TargetableUnitTypes { get; }
         public abstract List<BuildingType> TargetableBuildingTypes { get; }
     }
+    [System.Serializable]
     public abstract class PositionTargetedOrder : Order
     {
         public override TargetType TargetType => TargetType.Position;
     }
+    public class TestNonTargetedOrder : Order
+    {
+        public override string Name => "Test Non Targeted Order";
+        public override string Description => "This is a test order that does not require a target.";
+        public override Sprite Icon => null;
+        public override Texture2D CursorTexture => null;
+        public override TargetType TargetType => TargetType.None;
 
+        public override void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController)
+        {
+            Debug.Log("Executing Test Non Targeted Order");
+        }
+    }
+    public class TestPositionTargetedOrder : PositionTargetedOrder
+    {
+        public override string Name => "Test Position Targeted Order";
+        public override string Description => "This is a test order that requires a position target.";
+        public override Sprite Icon => null;
+        public override Texture2D CursorTexture => null;
+
+        public override void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController)
+        {
+            Debug.Log($"Executing Test Position Targeted Order at position {targetPosition}");
+        }
+    }
+    public class TestEntityTargetedOrder : EntityTargetedOrder
+    {
+        public override string Name => "Test Entity Targeted Order";
+        public override string Description => "This is a test order that requires an entity target.";
+        public override Sprite Icon => null;
+        public override Texture2D CursorTexture => null;
+
+        public override List<UnitType> TargetableUnitTypes => new List<UnitType> { /* Add targetable unit types here */ };
+        public override List<BuildingType> TargetableBuildingTypes => new List<BuildingType> { /* Add targetable building types here */ };
+
+        public override void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController)
+        {
+            Debug.Log($"Executing Test Entity Targeted Order on entity {targetEntityController.referenceEntity.name}");
+        }
+    }
+    [System.Serializable]
     public class MoveOrder : PositionTargetedOrder
     {
         [SerializeField] private string name = "Move";
@@ -74,7 +116,7 @@ namespace Game.RTS
         public override Sprite Icon => icon;
         public override Texture2D CursorTexture => cursorTexture;
 
-        public override void ExecuteOrder(IEntityController entityController, Vector3 targetPosition, IEntityController targetEntityController)
+        public override void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController)
         {
             entityController.MoveTo(targetPosition);
         }

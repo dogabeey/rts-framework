@@ -1,14 +1,14 @@
 {
-    "name": "Game.RTS.Gameplay",
+    "name": "Game.RTS",
     "rootNamespace": "Game.RTS",
     "references": [
-        "GUID:82bc4f01d2f742bb91a7cfcba1fc6a72",
-        "GUID:556af0cd0112c3344a7d98d603854f3d",
-        "GUID:c7e5ee813c213b740844ac0fcb653fbe",
+        "GUID:61b90b11b4c56724e8b8ed22411286e9",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:1d8a0e50a6f74ca4393570864b11c9ff",
-        "GUID:13fa7b05da790f042aeee77b715d2043",
-        "GUID:3f78e9a24a9a4f25928baeb7481ca0c3",
-        "GUID:fea5b1c5d0fa429eb1ff6438f95eb15f"
+        "GUID:c7e5ee813c213b740844ac0fcb653fbe",
+        "GUID:556af0cd0112c3344a7d98d603854f3d",
+        "GUID:4c7c13a69abfcdf46900245af9b83ffa",
+        "GUID:13fa7b05da790f042aeee77b715d2043"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

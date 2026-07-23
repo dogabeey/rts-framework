@@ -45,7 +45,7 @@ namespace Game.RTS
         private struct PendingOrderExecution
         {
             public Order Order;
-            public IEntityController EntityController;
+            public EntityController EntityController;
         }
 
         private void Awake()
@@ -319,7 +319,7 @@ namespace Game.RTS
             return TryGetPlanePoint(GetCurrentMouseScreenPosition(), out targetPoint);
         }
 
-        private bool TryGetCommandTargetEntity(out IEntityController targetEntity)
+        private bool TryGetCommandTargetEntity(out EntityController targetEntity)
         {
             targetEntity = null;
 

@@ -12,6 +12,7 @@ namespace Game.RTS
         [System.Serializable]
         public class OrderData
         {
+            [SerializeReference]
             public Order order;
             public int orderIndex;
             [ValueDropdown("@Entity.GetAllInputActionFieldNamesInRTSInputActionAsset()", ExpandAllMenuItems = true)]
