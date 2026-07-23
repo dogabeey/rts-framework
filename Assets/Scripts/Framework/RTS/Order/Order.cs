@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Reflection;
 using Sirenix.OdinInspector;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 namespace Game.RTS
@@ -20,6 +21,8 @@ namespace Game.RTS
         public Sprite icon;
 
         public abstract TargetType TargetType { get; }
+
+        public abstract void ExecuteOrder(IEntityController entityController, Vector3 targetPosition, IEntityController targetEntityController);
         
         public static ValueDropdownList<string> GetAllInputActionFieldNamesInRTSInputActionAsset()
         {
@@ -49,6 +52,7 @@ namespace Game.RTS
     public abstract class EntityOrder : Order
     {
         public override TargetType TargetType => TargetType.Entity;
-        public abstract UnitType UnitType { get; }
+        public abstract List<UnitType> TargetableUnitTypes { get; }
+        public abstract List<BuildingType> TargetableBuildingTypes { get; }
     }
 }

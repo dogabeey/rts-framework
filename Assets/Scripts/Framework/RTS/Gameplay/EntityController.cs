@@ -7,8 +7,10 @@ namespace Game.RTS
 {
 
     [RequireComponent( typeof(AttackableComponent), typeof(DamageableComponent))]
-    public abstract class EntityController : MonoBehaviour
+    public abstract class EntityController : MonoBehaviour, IEntityController
     {
+        public GameObject GameObject => gameObject;
+
         public EntityMissionState EntityState => entityState;
 
         public event Action<EntityMissionState, EntityMissionState> StateChanged;

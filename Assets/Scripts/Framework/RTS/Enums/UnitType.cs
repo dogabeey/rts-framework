@@ -8,4 +8,11 @@ namespace Game.RTS
         Naval,
         Other
     }
+    public enum BuildingType
+    {
+        Civilian,
+        Military,
+        Industrial,
+        Other
+    }
 }
