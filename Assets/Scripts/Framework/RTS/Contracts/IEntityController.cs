@@ -5,5 +5,8 @@ namespace Game.RTS
     public interface IEntityController
     {
         GameObject GameObject { get; }
+
+        void MoveTo(Vector3 targetPosition);
+
     }
 }

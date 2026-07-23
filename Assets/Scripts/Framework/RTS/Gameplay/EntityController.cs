@@ -117,5 +117,13 @@ namespace Game.RTS
             missionParam.Set("nextMissionType", nextState != null ? nextState.MissionType : EntityMissionType.Idle);
             EventManager.TriggerEvent(GameEvent.ENTITY_MISSION_STATE_CHANGED, missionParam);
         }
+
+        public void MoveTo(Vector3 targetPosition)
+        {
+            if(this is UnitController unitController)
+            {
+                unitController.MoveTo(targetPosition);
+            }
+        }
     }
 }

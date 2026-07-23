@@ -49,10 +49,22 @@ namespace Game.RTS
         }
     }
 
-    public abstract class EntityOrder : Order
+    public abstract class EntityTargetedOrder : Order
     {
         public override TargetType TargetType => TargetType.Entity;
         public abstract List<UnitType> TargetableUnitTypes { get; }
         public abstract List<BuildingType> TargetableBuildingTypes { get; }
+    }
+    public abstract class PositionTargetedOrder : Order
+    {
+        public override TargetType TargetType => TargetType.Position;
+    }
+
+    public class MoveOrder : PositionTargetedOrder
+    {
+        public override void ExecuteOrder(IEntityController entityController, Vector3 targetPosition, IEntityController targetEntityController)
+        {
+            entityController.MoveTo(targetPosition);
+        }
     }
 }
