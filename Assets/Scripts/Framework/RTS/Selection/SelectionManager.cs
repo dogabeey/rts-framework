@@ -39,6 +39,7 @@ namespace Game.RTS
         private bool isDraggingSelection;
 
         private readonly List<UnitController> selectedUnitsBuffer = new List<UnitController>();
+        private readonly List<EntityController> selectedEntitiesBuffer = new List<EntityController>();
 
         private void Awake()
         {
@@ -55,6 +56,7 @@ namespace Game.RTS
 
             inputActions = new @RTS_InputActions();
             inputActions.RTS.AddCallbacks(this);
+            inputActions.RTS.Get().actionTriggered += OnRtsInputTriggered;
             inputActions.RTS.Enable();
         }
 
@@ -90,6 +92,7 @@ namespace Game.RTS
                 return;
             }
 
+            inputActions.RTS.Get().actionTriggered -= OnRtsInputTriggered;
             inputActions.RTS.RemoveCallbacks(this);
             inputActions.RTS.Disable();
             inputActions.Dispose();
@@ -287,9 +290,126 @@ namespace Game.RTS
             return selectedUnitsBuffer.Count > 0;
         }
 
+        private bool TryGetSelectedEntities(out IReadOnlyList<EntityController> entities)
+        {
+            selectedEntitiesBuffer.Clear();
+            foreach (var selectable in SelectableComponent.All)
+            {
+                if (selectable != null && selectable.IsSelected
+                    && selectable.TryGetComponent<EntityController>(out var entityController))
+                {
+                    selectedEntitiesBuffer.Add(entityController);
+                }
+            }
+
+            entities = selectedEntitiesBuffer;
+            return selectedEntitiesBuffer.Count > 0;
+        }
+
         private bool TryGetCommandTarget(out Vector3 targetPoint)
         {
             return TryGetPlanePoint(GetCurrentMouseScreenPosition(), out targetPoint);
+        }
+
+        private bool TryGetCommandTargetEntity(out IEntityController targetEntity)
+        {
+            targetEntity = null;
+
+            var cameraRef = ResolveCamera();
+            if (cameraRef == null)
+            {
+                return false;
+            }
+
+            var hits = Physics.RaycastAll(cameraRef.ScreenPointToRay(GetCurrentMouseScreenPosition()));
+            foreach (var hit in hits)
+            {
+                var entityController = hit.collider.GetComponentInParent<EntityController>();
+                if (entityController != null)
+                {
+                    targetEntity = entityController;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void OnRtsInputTriggered(InputAction.CallbackContext context)
+        {
+            if (!context.performed || !TryGetSelectedEntities(out var entities))
+            {
+                return;
+            }
+
+            // Entity.OrderData stores generated RTS action field names (for example
+            // "m_RTS_Skill1"), while the callback exposes the action name ("Skill1").
+            var inputActionFieldName = $"m_RTS_{context.action.name}";
+
+            foreach (var entityController in entities)
+            {
+                var orderDataArray = entityController.referenceEntity != null
+                    ? entityController.referenceEntity.orderDataArray
+                    : null;
+
+                if (orderDataArray == null)
+                {
+                    continue;
+                }
+
+                foreach (var orderData in orderDataArray)
+                {
+                    if (orderData?.order == null
+                        || !InputActionMatches(orderData.inputActionOverride, context.action.name, inputActionFieldName))
+                    {
+                        continue;
+                    }
+
+                    if (TryExecuteOrder(orderData.order, entityController))
+                    {
+                        // An entity can define several orders for a single action;
+                        // execute only the first applicable one for this input.
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static bool InputActionMatches(string configuredInput, string actionName, string actionFieldName)
+        {
+            return !string.IsNullOrWhiteSpace(configuredInput)
+                && (configuredInput == actionName || configuredInput == actionFieldName);
+        }
+
+        private bool TryExecuteOrder(Order order, IEntityController entityController)
+        {
+            switch (order.TargetType)
+            {
+                case TargetType.None:
+                    order.ExecuteOrder(entityController, default, null);
+                    return true;
+
+                case TargetType.Position:
+                    if (!TryGetCommandTarget(out var targetPosition))
+                    {
+                        return false;
+                    }
+
+                    order.ExecuteOrder(entityController, targetPosition, null);
+                    return true;
+
+                case TargetType.Entity:
+                    if (!TryGetCommandTargetEntity(out var targetEntity))
+                    {
+                        return false;
+                    }
+
+                    order.ExecuteOrder(entityController, default, targetEntity);
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         private void SetSelectedUnitsMission(EntityMissionType missionType)

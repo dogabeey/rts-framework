@@ -16,9 +16,9 @@ namespace Game.RTS
     [System.Serializable]
     public abstract class Order
     {
-        public string orderName;
-        public string description;
-        public Sprite icon;
+        public abstract string Name { get; }
+        public abstract string Description { get; }
+        public abstract Sprite Icon { get; }
 
         public abstract TargetType TargetType { get; }
 
