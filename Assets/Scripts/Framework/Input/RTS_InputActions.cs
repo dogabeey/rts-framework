@@ -141,7 +141,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""AddToSelection"",
                     ""type"": ""Button"",
                     ""id"": ""bc145d2b-f12e-4606-9789-fd7f6b71f9f8"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -150,7 +150,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""CommandMove"",
                     ""type"": ""Button"",
                     ""id"": ""58d62ffd-75ec-4e11-8a0d-f0391f3d8f66"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -168,7 +168,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""StopCommand"",
                     ""type"": ""Button"",
                     ""id"": ""bcef32b6-e60f-47e9-9ca9-c1f6a8196724"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -177,7 +177,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""HoldPosition"",
                     ""type"": ""Button"",
                     ""id"": ""f3f6a482-9315-4e03-99b8-5e4384972fda"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -195,7 +195,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""QueueModifier"",
                     ""type"": ""Button"",
                     ""id"": ""4f7796ec-ec27-4022-86a8-dbb66f5e2525"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -240,7 +240,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""SelectControlGroup3"",
                     ""type"": ""Button"",
                     ""id"": ""139fdce1-c850-4de5-8db7-11e9fcfdf815"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -990,7 +990,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""6a6d53ec-e88b-4a16-a2d1-c5ae8378b87d"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -1045,7 +1045,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4adbb36f-ce4c-4397-ac45-7b69df1a04d7"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/x"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -1100,7 +1100,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""3379af2f-f3ad-4133-b20e-86840cadb441"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/c"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -1155,7 +1155,7 @@ public partial class @RTS_InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""bd2d783b-e485-4ec7-85f0-0f1039ef4bdb"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/v"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
