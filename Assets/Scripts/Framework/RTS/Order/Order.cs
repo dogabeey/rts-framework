@@ -12,6 +12,14 @@ namespace Game.RTS
         Position,
         Entity
     }
+    public enum TargetScope
+    {
+        Any,
+        SameFaction,
+        Allied,
+        Enemy,
+        Neutral
+    }
 
     [System.Serializable]
     public abstract class Order
@@ -57,6 +65,7 @@ namespace Game.RTS
         public override TargetType TargetType => TargetType.Entity;
         public abstract List<UnitType> TargetableUnitTypes { get; }
         public abstract List<BuildingType> TargetableBuildingTypes { get; }
+        public abstract List<TargetScope> TargetableScopes { get; }
     }
     [System.Serializable]
     public abstract class PositionTargetedOrder : Order
@@ -94,6 +103,7 @@ namespace Game.RTS
         public override string Description => "This is a test order that requires an entity target.";
         public override Sprite Icon => null;
         public override Texture2D CursorTexture => null;
+        public override List<TargetScope> TargetableScopes => new List<TargetScope> { TargetScope.Any };
 
         public override List<UnitType> TargetableUnitTypes => new List<UnitType> { /* Add targetable unit types here */ };
         public override List<BuildingType> TargetableBuildingTypes => new List<BuildingType> { /* Add targetable building types here */ };

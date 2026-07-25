@@ -50,6 +50,11 @@ namespace Game.RTS
 
         private void Awake()
         {
+            if (!TryGetComponent<SelectedEntityOrdersDebugGUI>(out _))
+            {
+                gameObject.AddComponent<SelectedEntityOrdersDebugGUI>();
+            }
+
             ConfigureSelectionBoxRenderer();
             SetSelectionBoxVisible(false);
             ResolveMovementManager();
@@ -426,7 +431,9 @@ namespace Game.RTS
                         executedOrder = true;
                         break;
 
-                    case TargetType.Entity when hasEntityTarget:
+                    case TargetType.Entity when hasEntityTarget
+                        && pendingExecution.Order is EntityTargetedOrder entityTargetedOrder
+                        && IsValidEntityTarget(entityTargetedOrder, pendingExecution.EntityController, targetEntity):
                         pendingExecution.Order.ExecuteOrder(pendingExecution.EntityController, default, targetEntity);
                         executedOrder = true;
                         break;
@@ -439,6 +446,24 @@ namespace Game.RTS
             }
 
             return executedOrder;
+        }
+
+        private static bool IsValidEntityTarget(EntityTargetedOrder order, EntityController source, EntityController target)
+        {
+            if (source == null || target == null || order.TargetableScopes == null)
+            {
+                return false;
+            }
+
+            foreach (var targetScope in order.TargetableScopes)
+            {
+                if (source.IsTargetInScope(target, targetScope))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void ClearPendingOrderSelection()

@@ -2,6 +2,7 @@ using UnityEngine;
 using Game.Core;
 using System;
 using Game.EventManagement;
+using Sirenix.OdinInspector;
 
 namespace Game.RTS
 {
@@ -16,12 +17,46 @@ namespace Game.RTS
         public event Action<EntityMissionState, EntityMissionState> StateChanged;
 
         [SerializeField] protected EntityMissionType initialMissionState = EntityMissionType.Idle;
-
-        public Entity referenceEntity;
         [SerializeField] protected EntityMissionState entityState;
+        public Entity referenceEntity;
         public Renderer entityRenderer;
         public AttackableComponent attackableComponent;
         public DamageableComponent damageableComponent;
+        public int factionID;
+        public int allianceID;
+
+        /// <summary>
+        /// Returns whether <paramref name="target"/> has the requested relationship to this entity.
+        /// An ID of zero represents a neutral faction or alliance.
+        /// </summary>
+        public bool IsTargetInScope(EntityController target, TargetScope targetScope)
+        {
+            if (target == null)
+            {
+                return false;
+            }
+
+            switch (targetScope)
+            {
+                case TargetScope.Any:
+                    return true;
+
+                case TargetScope.SameFaction:
+                    return factionID == target.factionID;
+
+                case TargetScope.Allied:
+                    return factionID != target.factionID && allianceID != 0 && allianceID == target.allianceID;
+
+                case TargetScope.Enemy:
+                    return target.factionID != 0 && target.allianceID != 0 && allianceID != target.allianceID;
+
+                case TargetScope.Neutral:
+                    return target.factionID == 0 || target.allianceID == 0;
+
+                default:
+                    return false;
+            }
+        }
 
         protected virtual void Start()
         {

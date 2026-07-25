@@ -16,3 +16,14 @@ MonoBehaviour:
   materialReference: {fileID: 0}
   spriteReference: {fileID: 0}
   _name: 
+  orderDataArray:
+  - order:
+      rid: 3297714090181656659
+    orderIndex: 0
+    inputActionOverride: m_RTS_Skill1
+  references:
+    version: 2
+    RefIds:
+    - rid: 3297714090181656659
+      type: {class: TestNonTargetedOrder, ns: Game.RTS, asm: Game.RTS}
+      data: 

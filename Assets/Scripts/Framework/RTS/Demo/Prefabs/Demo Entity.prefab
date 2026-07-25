@@ -624,15 +624,15 @@ MonoBehaviour:
   animator: {fileID: 5220952694381926273}
   entityController: {fileID: 2200269167179679837}
   defaultAnimationState:
-    rid: 3297713716049740061
+    rid: -2
   stateAnimationMappings:
   - gameEvent: 309
     state:
-      rid: 3297713716049740064
+      rid: -2
     booleanParameterName: idle
   - gameEvent: 306
     state:
-      rid: 3297713716049740067
+      rid: -2
     booleanParameterName: move
   triggerAnimationMappings:
   - gameEvent: 307
@@ -644,15 +644,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3297713716049740061
-      type: {class: IdleAnimationState, ns: Game.RTS, asm: Game.RTS.Animation}
-      data: 
-    - rid: 3297713716049740064
-      type: {class: IdleAnimationState, ns: Game.RTS, asm: Game.RTS.Animation}
-      data: 
-    - rid: 3297713716049740067
-      type: {class: MovingAnimationState, ns: Game.RTS, asm: Game.RTS.Animation}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &2326733696943408945
 GameObject:
   m_ObjectHideFlags: 0
