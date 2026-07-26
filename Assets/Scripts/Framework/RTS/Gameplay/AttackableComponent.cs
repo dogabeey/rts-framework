@@ -12,6 +12,7 @@ namespace Game.RTS
         public float Damage => damage;
         public DamageType DamageType => damageType;
         public float Range => range;
+        public float TargetScanRange => range;
         public float AttackCooldown => attackCooldown;
         public AttackStrategy AttackStrategy => attackStrategy;
 
@@ -22,11 +23,17 @@ namespace Game.RTS
         [SerializeField] private Transform weaponMuzzlePosition;
         [SerializeField] private float damage;
         [SerializeField] private DamageType damageType;
-        [SerializeField] private float range;
+        [SerializeField, Tooltip("Maximum distance at which AI can acquire a target; attack distance is defined by the attack strategy.")]
+        private float range;
         [SerializeField] private float attackCooldown;
         [SerializeField, SerializeReference] private AttackStrategy attackStrategy;
 
         private float nextAttackTime;
+
+        private void Awake()
+        {
+            EnsureAttackStrategy();
+        }
 
         /// <summary>Attempts one complete attack, including range, cooldown and damage checks.</summary>
         public bool TryAttack(DamageableComponent target)
@@ -39,8 +46,7 @@ namespace Game.RTS
 
             nextAttackTime = Time.time + Mathf.Max(0f, attackCooldown);
             PlayRangedMuzzleFlash();
-            target.TakeDamage(damageType, damage);
-            attackStrategy?.Attack(target);
+            attackStrategy.Attack(target);
 
             EventParam attackParam = new EventParam();
             attackParam.Set(EventParam.Keys.GameObject, gameObject);
@@ -100,15 +106,27 @@ namespace Game.RTS
                 return false;
             }
 
-            var rangeWithHitBox = Mathf.Max(0f, range) + Mathf.Max(0f, target.HitBox);
-            var offset = target.transform.position - transform.position;
-            offset.y = 0f;
-            if (offset.sqrMagnitude > rangeWithHitBox * rangeWithHitBox)
+            EnsureAttackStrategy();
+            return attackStrategy.CanAttack(target);
+        }
+
+        internal void ApplyDamage(DamageableComponent target)
+        {
+            if (target != null && !target.IsDead)
             {
-                return false;
+                target.TakeDamage(damageType, damage);
+            }
+        }
+
+        private void EnsureAttackStrategy()
+        {
+            // Preserve existing prefabs that were created before strategies were required.
+            if (attackStrategy == null)
+            {
+                attackStrategy = new MeleeAttackStrategy();
             }
 
-            return attackStrategy == null || attackStrategy.CanAttack(target);
+            attackStrategy.Initialize(this);
         }
     }
 }

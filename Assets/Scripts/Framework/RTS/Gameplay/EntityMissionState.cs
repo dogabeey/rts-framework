@@ -119,17 +119,17 @@ namespace Game.RTS
         public override void OnStateUpdate(EntityController entityController)
         {
             var attackable = entityController.attackableComponent;
-            if (attackable == null || attackable.Range <= 0f)
+            if (attackable == null || attackable.TargetScanRange <= 0f)
             {
                 return;
             }
 
             var target = entityController.CurrentAttackTarget;
-            var guardRadius = attackable.Range * 2f;
+            var guardRadius = attackable.TargetScanRange * 2f;
             if (!entityController.IsValidEnemyTarget(target)
                 || EntityMissionCombat.HorizontalDistanceSquared(entityController.MissionAnchor, target.transform.position) > guardRadius * guardRadius)
             {
-                target = entityController.FindClosestEnemy(attackable.Range);
+                target = entityController.FindClosestEnemy(attackable.TargetScanRange);
                 entityController.SetCurrentAttackTarget(target);
             }
 
@@ -202,12 +202,12 @@ namespace Game.RTS
         public override void OnStateUpdate(EntityController entityController)
         {
             var attackable = entityController.attackableComponent;
-            if (attackable == null || attackable.Range <= 0f)
+            if (attackable == null || attackable.TargetScanRange <= 0f)
             {
                 return;
             }
 
-            var threat = entityController.FindClosestEnemy(attackable.Range);
+            var threat = entityController.FindClosestEnemy(attackable.TargetScanRange);
             if (threat == null)
             {
                 return;
@@ -220,7 +220,7 @@ namespace Game.RTS
                 direction = entityController.transform.forward;
             }
 
-            entityController.MoveTo(entityController.transform.position + direction.normalized * attackable.Range);
+            entityController.MoveTo(entityController.transform.position + direction.normalized * attackable.TargetScanRange);
         }
     }
     public class AttackMoveState : EntityMissionState
@@ -244,12 +244,12 @@ namespace Game.RTS
         public static void AttackIfEnemyIsInRange(EntityController entityController)
         {
             var attackable = entityController.attackableComponent;
-            if (attackable == null || attackable.Range <= 0f)
+            if (attackable == null || attackable.TargetScanRange <= 0f)
             {
                 return;
             }
 
-            var target = entityController.FindClosestEnemy(attackable.Range);
+            var target = entityController.FindClosestEnemy(attackable.TargetScanRange);
             if (target != null)
             {
                 entityController.TryAttack(target);

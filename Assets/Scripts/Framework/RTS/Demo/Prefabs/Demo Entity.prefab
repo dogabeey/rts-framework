@@ -493,14 +493,13 @@ MonoBehaviour:
   range: 5
   attackCooldown: 0.5
   attackStrategy:
-    rid: 5100881334487482458
+    rid: 5100881334487482466
   references:
     version: 2
     RefIds:
-    - rid: 5100881334487482458
-      type: {class: RangedAttackStrategy, ns: Game.RTS, asm: Game.RTS}
-      data:
-        Range: 0
+    - rid: 5100881334487482466
+      type: {class: MeleeAttackStrategy, ns: Game.RTS, asm: Game.RTS}
+      data: 
 --- !u!114 &1104073722311766222
 MonoBehaviour:
   m_ObjectHideFlags: 0
