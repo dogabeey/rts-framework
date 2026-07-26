@@ -24,6 +24,11 @@ namespace Game.RTS
         public DamageableComponent damageableComponent;
         public int factionID;
         public int allianceID;
+        public DamageableComponent CurrentAttackTarget => currentAttackTarget;
+        public Vector3 MissionAnchor => missionAnchor;
+
+        [SerializeField, ReadOnly] private DamageableComponent currentAttackTarget;
+        [SerializeField, ReadOnly] private Vector3 missionAnchor;
 
         /// <summary>
         /// Returns whether <paramref name="target"/> has the requested relationship to this entity.
@@ -48,7 +53,10 @@ namespace Game.RTS
                     return factionID != target.factionID && allianceID != 0 && allianceID == target.allianceID;
 
                 case TargetScope.Enemy:
-                    return target.factionID != 0 && target.allianceID != 0 && allianceID != target.allianceID;
+                    return factionID != 0 && target.factionID != 0
+                        && factionID != target.factionID
+                        && allianceID != 0 && target.allianceID != 0
+                        && allianceID != target.allianceID;
 
                 case TargetScope.Neutral:
                     return target.factionID == 0 || target.allianceID == 0;
@@ -75,6 +83,11 @@ namespace Game.RTS
 
         protected virtual void UpdateEntityState()
         {
+            if (damageableComponent != null && damageableComponent.IsDead)
+            {
+                return;
+            }
+
             entityState?.OnStateUpdate(this);
         }
 
@@ -155,10 +168,93 @@ namespace Game.RTS
 
         public void MoveTo(Vector3 targetPosition)
         {
-            if(this is UnitController unitController)
+            var movement = GetComponent<MovementController>();
+            if (movement != null && (!movement.HasMoveTarget || (movement.CurrentMoveTarget - targetPosition).sqrMagnitude > 0.25f))
             {
-                unitController.MoveTo(targetPosition);
+                movement.SetMoveTarget(targetPosition);
             }
+        }
+
+        /// <summary>Orders this entity to pursue and attack one enemy until it dies or the order is replaced.</summary>
+        public bool SetAttackTarget(EntityController target)
+        {
+            return SetAttackTarget(target != null ? target.damageableComponent : null);
+        }
+
+        public bool SetAttackTarget(DamageableComponent target)
+        {
+            if (!IsValidEnemyTarget(target))
+            {
+                return false;
+            }
+
+            currentAttackTarget = target;
+            return SetMissionState(EntityMissionType.Attack, true);
+        }
+
+        public bool IsValidEnemyTarget(DamageableComponent target)
+        {
+            return target != null && !target.IsDead && target.referenceEntity != null
+                && target.referenceEntity != this && IsTargetInScope(target.referenceEntity, TargetScope.Enemy);
+        }
+
+        public DamageableComponent FindClosestEnemy(float searchRange)
+        {
+            DamageableComponent closest = null;
+            var bestDistance = float.MaxValue;
+            foreach (var candidate in DamageableComponent.All)
+            {
+                if (!IsValidEnemyTarget(candidate))
+                {
+                    continue;
+                }
+
+                var offset = candidate.transform.position - transform.position;
+                offset.y = 0f;
+                var distance = offset.sqrMagnitude;
+                var effectiveRange = Mathf.Max(0f, searchRange) + Mathf.Max(0f, candidate.HitBox);
+                if (distance <= effectiveRange * effectiveRange && distance < bestDistance)
+                {
+                    closest = candidate;
+                    bestDistance = distance;
+                }
+            }
+
+            return closest;
+        }
+
+        public bool IsTargetInAttackRange(DamageableComponent target)
+        {
+            return attackableComponent != null && attackableComponent.CanAttack(target);
+        }
+
+        public bool TryAttack(DamageableComponent target)
+        {
+            return IsValidEnemyTarget(target) && attackableComponent != null && attackableComponent.TryAttack(target);
+        }
+
+        public void SetMissionAnchor(Vector3 anchor) => missionAnchor = anchor;
+        public void SetCurrentAttackTarget(DamageableComponent target) => currentAttackTarget = target;
+        public void ClearCurrentAttackTarget() => currentAttackTarget = null;
+
+        public void ChaseTarget(DamageableComponent target)
+        {
+            var movement = GetComponent<MovementController>();
+            if (movement == null || target == null)
+            {
+                return;
+            }
+
+            var targetPosition = target.transform.position;
+            if (!movement.HasMoveTarget || (movement.CurrentMoveTarget - targetPosition).sqrMagnitude > 0.25f)
+            {
+                movement.SetMoveTarget(targetPosition);
+            }
+        }
+
+        public void StopMovement()
+        {
+            GetComponent<MovementController>()?.Stop();
         }
     }
 }

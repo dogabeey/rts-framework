@@ -27,6 +27,7 @@ namespace Game.RTS
         }
 
         private AnimationState currentAnimationState ;
+        private readonly List<(GameEvent gameEvent, System.Action<EventParam> callback)> eventListeners = new List<(GameEvent, System.Action<EventParam>)>();
         [SerializeField] 
         private Animator animator;
         [SerializeField] 
@@ -34,75 +35,47 @@ namespace Game.RTS
         [SerializeField, SerializeReference] 
         private AnimationState defaultAnimationState;
         [SerializeField]
-        private StateAnimationMapping[] stateAnimationMappings;
+        private StateAnimationMapping[] stateAnimationMappings = new StateAnimationMapping[0];
         [SerializeField]
-        private TriggerAnimationMapping[] triggerAnimationMappings;
+        private TriggerAnimationMapping[] triggerAnimationMappings = new TriggerAnimationMapping[0];
 
         private void OnEnable()
         {
             foreach (var mapping in triggerAnimationMappings)
             {
-                EventManager.StartListening(mapping.gameEvent, (EventParam e) =>
-                    {
-                        if(e.paramDictionary != null 
-                        && e.paramDictionary.ContainsKey("Entity")
-                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
-                        && entityObj is EntityController entityController
-                        && entityController == this.entityController)
-                        {
-                            animator.SetTrigger(mapping.triggerParameterName);
-                        }
-                    }
-                );
+                if (mapping == null) continue;
+                var callback = new System.Action<EventParam>(e =>
+                {
+                    if (IsOwnEvent(e) && animator != null)
+                        animator.SetTrigger(mapping.triggerParameterName);
+                });
+                eventListeners.Add((mapping.gameEvent, callback));
+                EventManager.StartListening(mapping.gameEvent, callback);
             }
             foreach (var mapping in stateAnimationMappings)
             {
-                EventManager.StartListening(mapping.gameEvent, (EventParam e) =>
-                    {
-                        if(e.paramDictionary != null 
-                        && e.paramDictionary.ContainsKey("Entity")
-                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
-                        && entityObj is EntityController entityController
-                        && entityController == this.entityController)
-                        {
-                            CurrentAnimationState = mapping.state;
-                        }
-                    }
-                );
+                if (mapping == null) continue;
+                var callback = new System.Action<EventParam>(e =>
+                {
+                    if (!IsOwnEvent(e)) return;
+                    CurrentAnimationState = mapping.state;
+                    SetAnimatorBoolean(mapping.booleanParameterName);
+                });
+                eventListeners.Add((mapping.gameEvent, callback));
+                EventManager.StartListening(mapping.gameEvent, callback);
             }
         }
         private void OnDisable()
         {
-            foreach (var mapping in triggerAnimationMappings)
-            {
-                EventManager.StopListening(mapping.gameEvent, (EventParam e) =>
-                    {
-                        if(e.paramDictionary != null 
-                        && e.paramDictionary.ContainsKey("Entity")
-                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
-                        && entityObj is EntityController entityController
-                        && entityController == this.entityController)
-                        {
-                            animator.SetTrigger(mapping.triggerParameterName);
-                        }
-                    }
-                );
-            }
-            foreach (var mapping in stateAnimationMappings)
-            {
-                EventManager.StopListening(mapping.gameEvent, (EventParam e) =>
-                    {
-                        if(e.paramDictionary != null 
-                        && e.paramDictionary.ContainsKey("Entity")
-                        && e.paramDictionary.TryGetValue("Entity", out object entityObj)
-                        && entityObj is EntityController entityController
-                        && entityController == this.entityController)
-                        {
-                            CurrentAnimationState = mapping.state;
-                        }
-                    }
-                );
-            }
+            foreach (var listener in eventListeners)
+                EventManager.StopListening(listener.gameEvent, listener.callback);
+            eventListeners.Clear();
+        }
+
+        private bool IsOwnEvent(EventParam eventParam)
+        {
+            return eventParam != null && eventParam.TryGet("entityController", out EntityController source)
+                && source == entityController;
         }
 
 
@@ -129,7 +102,7 @@ namespace Game.RTS
         {
             foreach (var mapping in stateAnimationMappings)
             {
-                if (mapping.state == state)
+                if (mapping != null && mapping.state == state)
                 {
                     return mapping.booleanParameterName;
                 }
@@ -138,11 +111,18 @@ namespace Game.RTS
         }
         private void UpdateAnimatorState()
         {
-            string booleanParameterName = GetBooleanParameterNameForState(defaultAnimationState);
-            if (!string.IsNullOrEmpty(booleanParameterName))
+            SetAnimatorBoolean(GetBooleanParameterNameForState(currentAnimationState ?? defaultAnimationState));
+        }
+
+        private void SetAnimatorBoolean(string booleanParameterName)
+        {
+            if (animator == null || string.IsNullOrEmpty(booleanParameterName))
             {
-                animator.SetBool(booleanParameterName, true);
+                return;
             }
+
+            foreach (var mapping in stateAnimationMappings)
+                if (mapping != null && !string.IsNullOrEmpty(mapping.booleanParameterName)) animator.SetBool(mapping.booleanParameterName, mapping.booleanParameterName == booleanParameterName);
         }
         public ValueDropdownList<string> GetAllBooleanParameters()
         {

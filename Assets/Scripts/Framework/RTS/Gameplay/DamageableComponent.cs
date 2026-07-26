@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Game.EventManagement;
 
@@ -7,9 +8,12 @@ namespace Game.RTS
 {
     public class DamageableComponent : MonoBehaviour
     {
+        private static readonly HashSet<DamageableComponent> activeDamageables = new HashSet<DamageableComponent>();
+        public static IReadOnlyCollection<DamageableComponent> All => activeDamageables;
         public float MaxHealth => maxHealth;
         public ArmorType ArmorType => armorType;
         public float HitBox => hitBox;
+        public bool IsDead => isDead;
 
         [ReadOnly] public  EntityController referenceEntity;
 
@@ -22,16 +26,29 @@ namespace Game.RTS
 
         private bool isDead;
 
-        public void Start()
+        private void Awake()
         {
             currentHealth = maxHealth;
             isDead = false;
         }
 
+        private void OnEnable() => activeDamageables.Add(this);
+        private void OnDisable() => activeDamageables.Remove(this);
+
         public void TakeDamage(float amount)
         {
+            TakeDamage(null, amount);
+        }
+
+        public void TakeDamage(DamageType damageType, float amount)
+        {
+            if (isDead || amount <= 0f)
+            {
+                return;
+            }
+
             // Implement damage calculation based on armor type and hitbox
-            float effectiveDamage = CalculateEffectiveDamage(amount);
+            float effectiveDamage = CalculateEffectiveDamage(damageType, amount);
             // Apply the effective damage to the entity's health
             ApplyDamage(effectiveDamage);
         }
@@ -65,6 +82,7 @@ namespace Game.RTS
             }
 
             isDead = true;
+            referenceEntity?.SetMissionState(EntityMissionType.Sleep, true);
 
             EventParam diedParam = new EventParam();
             diedParam.Set(EventParam.Keys.GameObject, gameObject);
@@ -73,19 +91,15 @@ namespace Game.RTS
             EventManager.TriggerEvent(GameEvent.ENTITY_DIED, diedParam);
         }
 
-        private float CalculateEffectiveDamage(float amount)
+        private float CalculateEffectiveDamage(DamageType damageType, float amount)
         {
-            // Implement damage calculation logic based on armor type and hitbox
-            // For example, you can reduce the damage based on armor type and hitbox size
-            float damageReduction = GetDamageReduction();
-            return amount * (1 - damageReduction);
-        }
+            if (damageType != null && damageType.DamageModifiers != null
+                && damageType.DamageModifiers.TryGetValue(armorType, out var modifier))
+            {
+                return Mathf.Max(0f, amount * modifier);
+            }
 
-        private float GetDamageReduction()
-        {
-            // Implement logic to determine damage reduction based on armor type and hitbox
-            // For example, you can return a percentage reduction based on the armor type
-            throw new NotImplementedException("Damage reduction calculation based on armor type and hitbox is not implemented yet.");
+            return amount;
         }
     }
 }

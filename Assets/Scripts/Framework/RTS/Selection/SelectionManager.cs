@@ -335,17 +335,18 @@ namespace Game.RTS
             }
 
             var hits = Physics.RaycastAll(cameraRef.ScreenPointToRay(GetCurrentMouseScreenPosition()));
+            var closestDistance = float.MaxValue;
             foreach (var hit in hits)
             {
                 var entityController = hit.collider.GetComponentInParent<EntityController>();
-                if (entityController != null)
+                if (entityController != null && hit.distance < closestDistance)
                 {
                     targetEntity = entityController;
-                    return true;
+                    closestDistance = hit.distance;
                 }
             }
 
-            return false;
+            return targetEntity != null;
         }
 
         private void OnRtsInputTriggered(InputAction.CallbackContext context)
@@ -669,6 +670,26 @@ namespace Game.RTS
                 return;
             }
 
+            // Right-clicking a hostile entity is the default attack command. This is
+            // resolved before the ground move command, so an enemy collider never
+            // turns into an unintended move order.
+            if (TryGetCommandTargetEntity(out var targetEntity) && TryGetSelectedEntities(out var selectedEntities))
+            {
+                var attackOrdered = false;
+                foreach (var selectedEntity in selectedEntities)
+                {
+                    if (selectedEntity != null && selectedEntity.IsTargetInScope(targetEntity, TargetScope.Enemy))
+                    {
+                        attackOrdered |= selectedEntity.SetAttackTarget(targetEntity);
+                    }
+                }
+
+                if (attackOrdered)
+                {
+                    return;
+                }
+            }
+
             ResolveMovementManager();
             if (movementManager == null)
             {
@@ -730,7 +751,7 @@ namespace Game.RTS
                 return;
             }
 
-            SetSelectedUnitsMission(EntityMissionType.Guard);
+            SetSelectedUnitsMission(EntityMissionType.AreaGuard);
         }
 
         public void OnPatrolCommand(InputAction.CallbackContext context)

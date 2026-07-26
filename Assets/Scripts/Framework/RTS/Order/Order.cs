@@ -131,4 +131,27 @@ namespace Game.RTS
             entityController.MoveTo(targetPosition);
         }
     }
+
+    /// <summary>Assigns a persistent Attack mission to the selected entity.</summary>
+    [System.Serializable]
+    public class AttackOrder : EntityTargetedOrder
+    {
+        [SerializeField] private string name = "Attack";
+        [SerializeField] private string description = "Pursue and attack the selected enemy until it is destroyed.";
+        [SerializeField] private Sprite icon;
+        [SerializeField] private Texture2D cursorTexture;
+
+        public override string Name => name;
+        public override string Description => description;
+        public override Sprite Icon => icon;
+        public override Texture2D CursorTexture => cursorTexture;
+        public override List<TargetScope> TargetableScopes => new List<TargetScope> { TargetScope.Enemy };
+        public override List<UnitType> TargetableUnitTypes => new List<UnitType>();
+        public override List<BuildingType> TargetableBuildingTypes => new List<BuildingType>();
+
+        public override void ExecuteOrder(EntityController entityController, Vector3 targetPosition, EntityController targetEntityController)
+        {
+            entityController?.SetAttackTarget(targetEntityController);
+        }
+    }
 }

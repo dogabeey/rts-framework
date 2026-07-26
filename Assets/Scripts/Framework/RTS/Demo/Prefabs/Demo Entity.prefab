@@ -446,6 +446,10 @@ MonoBehaviour:
   entityRenderer: {fileID: 0}
   attackableComponent: {fileID: 5410998800843844096}
   damageableComponent: {fileID: 1104073722311766222}
+  factionID: 0
+  allianceID: 0
+  currentAttackTarget: {fileID: 0}
+  missionAnchor: {x: 0, y: 0, z: 0}
   movementController: {fileID: 2870650492133166474}
 --- !u!114 &2870650492133166474
 MonoBehaviour:
@@ -483,9 +487,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.RTS.Gameplay::Game.RTS.AttackableComponent
   referenceEntity: {fileID: 0}
-  damage: 0
-  range: 0
-  attackCooldown: 0
+  damage: 1
+  range: 5
+  attackCooldown: 1
   attackStrategy:
     rid: -2
   references:
