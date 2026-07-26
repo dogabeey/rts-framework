@@ -22,7 +22,7 @@ namespace Game.RTS
         public Renderer entityRenderer;
         public AttackableComponent attackableComponent;
         public DamageableComponent damageableComponent;
-        public int factionID;
+        public int playerID;
         public int allianceID;
         public DamageableComponent CurrentAttackTarget => currentAttackTarget;
         public Vector3 MissionAnchor => missionAnchor;
@@ -48,19 +48,19 @@ namespace Game.RTS
                     return true;
 
                 case TargetScope.SameFaction:
-                    return factionID == target.factionID;
+                    return playerID == target.playerID;
 
                 case TargetScope.Allied:
-                    return factionID != target.factionID && allianceID != 0 && allianceID == target.allianceID;
+                    return playerID != target.playerID && allianceID != 0 && allianceID == target.allianceID;
 
                 case TargetScope.Enemy:
-                    return factionID != 0 && target.factionID != 0
-                        && factionID != target.factionID
+                    return playerID != 0 && target.playerID != 0
+                        && playerID != target.playerID
                         && allianceID != 0 && target.allianceID != 0
                         && allianceID != target.allianceID;
 
                 case TargetScope.Neutral:
-                    return target.factionID == 0 || target.allianceID == 0;
+                    return target.playerID == 0 || target.allianceID == 0;
 
                 default:
                     return false;
