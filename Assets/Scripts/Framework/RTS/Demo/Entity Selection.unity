@@ -131,6 +131,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Marine Prefab (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: factionID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: allianceID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: initialMissionState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6203560180212192438, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2
@@ -187,6 +199,18 @@ PrefabInstance:
     - target: {fileID: 1972414987311778779, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
       propertyPath: m_Name
       value: Marine Prefab (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: factionID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: allianceID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: initialMissionState
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6203560180212192438, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
       propertyPath: m_LocalPosition.x
@@ -689,6 +713,18 @@ PrefabInstance:
     - target: {fileID: 1972414987311778779, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
       propertyPath: m_Name
       value: Marine Prefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: factionID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: allianceID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2200269167179679837, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
+      propertyPath: initialMissionState
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6203560180212192438, guid: 9ee97c697e59b2e49b635a92665c8f03, type: 3}
       propertyPath: m_LocalPosition.x

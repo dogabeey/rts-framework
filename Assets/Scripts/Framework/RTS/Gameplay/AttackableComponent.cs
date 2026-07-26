@@ -17,7 +17,9 @@ namespace Game.RTS
 
         [ReadOnly] public  EntityController referenceEntity;
         
-        [SerializeField] private Renderer weaponRenderer;
+        [SerializeField] private Transform facingTransform;
+        [SerializeField] private ParticleSystem weaponMuzzleFlash;
+        [SerializeField] private Transform weaponMuzzlePosition;
         [SerializeField] private float damage;
         [SerializeField] private DamageType damageType;
         [SerializeField] private float range;
@@ -29,12 +31,14 @@ namespace Game.RTS
         /// <summary>Attempts one complete attack, including range, cooldown and damage checks.</summary>
         public bool TryAttack(DamageableComponent target)
         {
+            FaceTarget(target);
             if (!CanAttack(target) || Time.time < nextAttackTime)
             {
                 return false;
             }
 
             nextAttackTime = Time.time + Mathf.Max(0f, attackCooldown);
+            PlayRangedMuzzleFlash();
             target.TakeDamage(damageType, damage);
             attackStrategy?.Attack(target);
 
@@ -47,6 +51,40 @@ namespace Game.RTS
             attackParam.Set("damageType", damageType);
             EventManager.TriggerEvent(GameEvent.ENTITY_ATTACKED, attackParam);
             return true;
+        }
+
+        /// <summary>Rotates the assigned visual independently of navigation to face the current target.</summary>
+        public void FaceTarget(DamageableComponent target)
+        {
+            if (facingTransform == null || target == null)
+            {
+                return;
+            }
+
+            var direction = target.transform.position - facingTransform.transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 0.0001f)
+            {
+                facingTransform.transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+            }
+        }
+
+        private void PlayRangedMuzzleFlash()
+        {
+            if (!(attackStrategy is RangedAttackStrategy) || weaponMuzzleFlash == null)
+            {
+                return;
+            }
+
+            if (weaponMuzzlePosition != null)
+            {
+                weaponMuzzleFlash.transform.SetPositionAndRotation(
+                    weaponMuzzlePosition.position,
+                    weaponMuzzlePosition.rotation);
+            }
+
+            weaponMuzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            weaponMuzzleFlash.Play(true);
         }
 
         // Kept for callers that used the original API. New gameplay code should use TryAttack.

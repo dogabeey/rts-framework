@@ -8,7 +8,7 @@ namespace Game.RTS
         public abstract void Attack(DamageableComponent target);
     }
 
-    // Example concrete attack strategies
+    // Default melee attack strategy.
     [System.Serializable]
     public class MeleeAttackStrategy : AttackStrategy
     {
@@ -23,7 +23,7 @@ namespace Game.RTS
         }
     }
 
-    // Example concrete attack strategies
+    // Default ranged attack strategy.
     [System.Serializable]
     public class RangedAttackStrategy : AttackStrategy
     {

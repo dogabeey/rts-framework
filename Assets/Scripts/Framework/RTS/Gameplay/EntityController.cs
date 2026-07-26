@@ -239,6 +239,7 @@ namespace Game.RTS
 
         public void ChaseTarget(DamageableComponent target)
         {
+            attackableComponent?.FaceTarget(target);
             var movement = GetComponent<MovementController>();
             if (movement == null || target == null)
             {
