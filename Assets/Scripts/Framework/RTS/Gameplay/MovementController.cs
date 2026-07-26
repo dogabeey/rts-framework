@@ -130,9 +130,9 @@ namespace Game.RTS
             EventManager.TriggerEvent(GameEvent.ENTITY_MOVED, moveParam);
         }
 
-        public void Stop()
+        public void Stop(bool notify = true)
         {
-            ForceIdle();
+            ForceIdle(notify);
         }
 
         private void TickMovement()
@@ -195,7 +195,7 @@ namespace Game.RTS
             navMeshAgent.stoppingDistance = Mathf.Max(0.01f, stoppingDistance);
         }
 
-        private void ForceIdle()
+        private void ForceIdle(bool notify = true)
         {
             bool wasMoving = hasMoveTarget;
             hasMoveTarget = false;
@@ -210,7 +210,7 @@ namespace Game.RTS
             navMeshAgent.isStopped = true;
             navMeshAgent.ResetPath();
 
-            if (wasMoving)
+            if (wasMoving && notify)
             {
                 EventParam stopParam = new EventParam();
                 stopParam.Set(EventParam.Keys.GameObject, gameObject);

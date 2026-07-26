@@ -28,6 +28,7 @@ namespace Game.RTS
 
         private AnimationState currentAnimationState ;
         private readonly List<(GameEvent gameEvent, System.Action<EventParam> callback)> eventListeners = new List<(GameEvent, System.Action<EventParam>)>();
+        private bool deathAnimationLocked;
         [SerializeField] 
         private Animator animator;
         [SerializeField] 
@@ -41,12 +42,16 @@ namespace Game.RTS
 
         private void OnEnable()
         {
+            deathAnimationLocked = false;
+            SetAnimatorBooleanIfPresent("dead", false);
+            AddListener(GameEvent.ENTITY_DIED, HandleDeathEvent);
+
             foreach (var mapping in triggerAnimationMappings)
             {
                 if (mapping == null) continue;
                 var callback = new System.Action<EventParam>(e =>
                 {
-                    if (IsOwnEvent(e) && animator != null)
+                    if (IsOwnEvent(e) && !deathAnimationLocked && animator != null)
                         animator.SetTrigger(mapping.triggerParameterName);
                 });
                 eventListeners.Add((mapping.gameEvent, callback));
@@ -57,7 +62,7 @@ namespace Game.RTS
                 if (mapping == null) continue;
                 var callback = new System.Action<EventParam>(e =>
                 {
-                    if (!IsOwnEvent(e)) return;
+                    if (!IsOwnEvent(e) || deathAnimationLocked) return;
                     CurrentAnimationState = mapping.state;
                     SetAnimatorBoolean(mapping.booleanParameterName);
                 });
@@ -70,6 +75,46 @@ namespace Game.RTS
             foreach (var listener in eventListeners)
                 EventManager.StopListening(listener.gameEvent, listener.callback);
             eventListeners.Clear();
+        }
+
+        private void AddListener(GameEvent gameEvent, System.Action<EventParam> callback)
+        {
+            eventListeners.Add((gameEvent, callback));
+            EventManager.StartListening(gameEvent, callback);
+        }
+
+        private void HandleDeathEvent(EventParam eventParam)
+        {
+            if (!IsOwnEvent(eventParam) || deathAnimationLocked)
+            {
+                return;
+            }
+
+            deathAnimationLocked = true;
+            SetAnimatorBooleanIfPresent("dead", true);
+            if (animator == null)
+            {
+                return;
+            }
+
+            // The death event is handled directly so the lock can safely suppress
+            // all mapping callbacks registered for subsequent animation events.
+            foreach (var mapping in triggerAnimationMappings)
+            {
+                if (mapping != null && mapping.gameEvent == GameEvent.ENTITY_DIED)
+                {
+                    animator.SetTrigger(mapping.triggerParameterName);
+                }
+            }
+
+            foreach (var mapping in stateAnimationMappings)
+            {
+                if (mapping != null && mapping.gameEvent == GameEvent.ENTITY_DIED)
+                {
+                    CurrentAnimationState = mapping.state;
+                    SetAnimatorBoolean(mapping.booleanParameterName);
+                }
+            }
         }
 
         private bool IsOwnEvent(EventParam eventParam)
@@ -123,6 +168,23 @@ namespace Game.RTS
 
             foreach (var mapping in stateAnimationMappings)
                 if (mapping != null && !string.IsNullOrEmpty(mapping.booleanParameterName)) animator.SetBool(mapping.booleanParameterName, mapping.booleanParameterName == booleanParameterName);
+        }
+
+        private void SetAnimatorBooleanIfPresent(string parameterName, bool value)
+        {
+            if (animator == null)
+            {
+                return;
+            }
+
+            foreach (var parameter in animator.parameters)
+            {
+                if (parameter.type == AnimatorControllerParameterType.Bool && parameter.name == parameterName)
+                {
+                    animator.SetBool(parameterName, value);
+                    return;
+                }
+            }
         }
         public ValueDropdownList<string> GetAllBooleanParameters()
         {

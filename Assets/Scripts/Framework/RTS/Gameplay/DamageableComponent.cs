@@ -82,7 +82,7 @@ namespace Game.RTS
             }
 
             isDead = true;
-            referenceEntity?.SetMissionState(EntityMissionType.Sleep, true);
+            referenceEntity?.HandleDeath();
 
             EventParam diedParam = new EventParam();
             diedParam.Set(EventParam.Keys.GameObject, gameObject);

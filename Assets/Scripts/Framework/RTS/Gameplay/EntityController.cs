@@ -26,6 +26,7 @@ namespace Game.RTS
         public int allianceID;
         public DamageableComponent CurrentAttackTarget => currentAttackTarget;
         public Vector3 MissionAnchor => missionAnchor;
+        public bool IsDead => damageableComponent != null && damageableComponent.IsDead;
 
         [SerializeField, ReadOnly] private DamageableComponent currentAttackTarget;
         [SerializeField, ReadOnly] private Vector3 missionAnchor;
@@ -128,12 +129,17 @@ namespace Game.RTS
 
         public bool SetMissionState(EntityMissionType missionType, bool force = false)
         {
+            if (IsDead)
+            {
+                return false;
+            }
+
             return ChangeState(EntityMissionStateFactory.GetState(missionType), force);
         }
 
         public bool ChangeState(EntityMissionState nextState, bool force = false)
         {
-            if (nextState == null)
+            if (IsDead || nextState == null)
             {
                 return false;
             }
@@ -168,6 +174,11 @@ namespace Game.RTS
 
         public void MoveTo(Vector3 targetPosition)
         {
+            if (IsDead)
+            {
+                return;
+            }
+
             var movement = GetComponent<MovementController>();
             if (movement != null && (!movement.HasMoveTarget || (movement.CurrentMoveTarget - targetPosition).sqrMagnitude > 0.25f))
             {
@@ -183,7 +194,7 @@ namespace Game.RTS
 
         public bool SetAttackTarget(DamageableComponent target)
         {
-            if (!IsValidEnemyTarget(target))
+            if (IsDead || !IsValidEnemyTarget(target))
             {
                 return false;
             }
@@ -239,6 +250,11 @@ namespace Game.RTS
 
         public void ChaseTarget(DamageableComponent target)
         {
+            if (IsDead)
+            {
+                return;
+            }
+
             attackableComponent?.FaceTarget(target);
             var movement = GetComponent<MovementController>();
             if (movement == null || target == null)
@@ -256,6 +272,18 @@ namespace Game.RTS
         public void StopMovement()
         {
             GetComponent<MovementController>()?.Stop();
+        }
+
+        /// <summary>Stops all gameplay participation without emitting normal movement/state events.</summary>
+        public void HandleDeath()
+        {
+            currentAttackTarget = null;
+            GetComponent<MovementController>()?.Stop(notify: false);
+
+            if (TryGetComponent<SelectableComponent>(out var selectable))
+            {
+                selectable.enabled = false;
+            }
         }
     }
 }
