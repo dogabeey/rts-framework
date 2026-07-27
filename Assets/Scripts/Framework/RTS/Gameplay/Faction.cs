@@ -1,7 +1,8 @@
 namespace Game.RTS
 {
-    public class Faction
+    public abstract class Faction
     {
-        
+        public abstract string Name { get; set; }
+        public abstract string Description { get; set; }
     }
 }

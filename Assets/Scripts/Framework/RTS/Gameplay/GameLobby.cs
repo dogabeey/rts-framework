@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,11 +6,12 @@ namespace Game.RTS
 {
     public class GameLobby : MonoBehaviour
     {
+        [Serializable]
         public class SlotData
         {
             public Faction faction;
             public bool isHuman;
-            public Color color;
+            [ColorUsage(false, false)] public Color color = Color.white;
             public int allianceID;
             public int mapSlotIndex;
             [Range(1, 5)] public int difficultyLevel = 1;

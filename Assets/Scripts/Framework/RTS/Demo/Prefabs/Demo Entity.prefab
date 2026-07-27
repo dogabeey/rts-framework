@@ -445,7 +445,7 @@ MonoBehaviour:
   entityRenderer: {fileID: 2136696315360988436}
   attackableComponent: {fileID: 5410998800843844096}
   damageableComponent: {fileID: 1104073722311766222}
-  factionID: 0
+  playerID: 0
   allianceID: 0
   currentAttackTarget: {fileID: 0}
   missionAnchor: {x: 0, y: 0, z: 0}

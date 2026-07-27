@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ namespace Game.RTS
 {
     public class MapController : MonoBehaviour
     {
+        [Serializable]
         public class MapSlot
         {
             public int index;

@@ -18,12 +18,26 @@ MonoBehaviour:
   _name: 
   orderDataArray:
   - order:
-      rid: 3297714090181656659
+      rid: 3297714135765090387
     orderIndex: 0
     inputActionOverride: m_RTS_Skill1
+  - order:
+      rid: 3297714135765090388
+    orderIndex: 0
+    inputActionOverride: m_RTS_Skill2
+  - order:
+      rid: 3297714135765090389
+    orderIndex: 0
+    inputActionOverride: m_RTS_Skill3
   references:
     version: 2
     RefIds:
-    - rid: 3297714090181656659
+    - rid: 3297714135765090387
+      type: {class: TestPositionTargetedOrder, ns: Game.RTS, asm: Game.RTS}
+      data: 
+    - rid: 3297714135765090388
+      type: {class: TestEntityTargetedOrder, ns: Game.RTS, asm: Game.RTS}
+      data: 
+    - rid: 3297714135765090389
       type: {class: TestNonTargetedOrder, ns: Game.RTS, asm: Game.RTS}
       data: 
